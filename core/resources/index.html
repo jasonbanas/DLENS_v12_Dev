@@ -1,36 +1,154 @@
-<form id="spotForm">
-  <label>Company or Ticker</label>
-  <input id="q" required />
-  <label>Horizon (years)</label>
-  <input id="yrs" type="number" min="1" max="20" value="10" required />
-  <label><input id="em" type="checkbox" checked /> Email me this report</label>
-  <button type="submit">Create Spotlight Report</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DLENS Spotlight Generator</title>
 
-<div id="result" style="margin-top:16px;display:none">
-  <div>
-    <a id="dl" download>Download</a>
-    <a id="open" target="_blank" rel="noreferrer">Open</a>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 650px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #0d6efd;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 6px;
+      border: none;
+      background: #0d6efd;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0b5ed7;
+    }
+    #result {
+      margin-top: 25px;
+      display: none;
+    }
+    iframe {
+      width: 100%;
+      height: 80vh;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    .links {
+      margin-bottom: 10px;
+    }
+    .links a {
+      margin-right: 20px;
+      font-weight: bold;
+      text-decoration: none;
+      color: #0d6efd;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>DLENS Spotlight Generator</h1>
+
+  <form id="spotForm">
+    <label>Ticker Symbol:</label>
+    <input id="q" placeholder="TSLA" required />
+
+    <label>Projection Years:</label>
+    <input id="yrs" type="number" min="1" max="20" value="10" required />
+
+    <label style="margin-top:14px;">
+      <input id="em" type="checkbox" checked />
+      Email me this report
+    </label>
+
+    <button type="submit">Generate Spotlight</button>
+  </form>
+
+  <!-- RESULT SECTION -->
+  <div id="result">
+    <div class="links">
+      <a id="dl" download>Download</a>
+      <a id="open" target="_blank" rel="noreferrer">Open</a>
+    </div>
+    <iframe id="frame"></iframe>
   </div>
-  <iframe id="frame" style="width:100%;height:80vh;border:0"></iframe>
+
 </div>
 
 <script>
-const USER_ID = window.USER_ID || "demo-user";
-document.getElementById("spotForm").addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const body = {
-    query: document.getElementById("q").value.trim(),
-    years: Number(document.getElementById("yrs").value),
-    user_id: USER_ID,
-    email_opt_in: document.getElementById("em").checked
-  };
-  const r = await fetch("/api/spotlight", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
-  const j = await r.json();
-  if (!r.ok) { alert("Failed:\n" + (j.details?.join("\n") || j.error)); return; }
-  document.getElementById("result").style.display = "block";
-  document.getElementById("frame").src = j.url;
-  document.getElementById("dl").href = j.url;
-  document.getElementById("open").href = j.url;
-});
+  // USER ID placeholder (same as original code)
+  const USER_ID = window.USER_ID || "demo-user";
+
+  document.getElementById("spotForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const body = {
+      query: document.getElementById("q").value.trim(),
+      years: Number(document.getElementById("yrs").value),
+      user_id: USER_ID,
+      email_opt_in: document.getElementById("em").checked
+    };
+
+    try {
+      const r = await fetch("/api/spotlight", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)
+      });
+
+      const j = await r.json();
+
+      if (!r.ok) {
+        alert("Failed:\n" + (j.details?.join("\n") || j.error));
+        return;
+      }
+
+      // ✔ SHOW RESULT SECTION
+      document.getElementById("result").style.display = "block";
+
+      // ✔ API RETURNS e.g. /reports/DLENS_Spotlight_TSLA.html
+      document.getElementById("frame").src = j.url;
+      document.getElementById("dl").href = j.url;
+      document.getElementById("open").href = j.url;
+
+    } catch (err) {
+      alert("Network or Server Error: " + err);
+    }
+  });
 </script>
+
+</body>
+</html>
