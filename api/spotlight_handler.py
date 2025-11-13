@@ -19,22 +19,23 @@ def handler(request):
             years=years
         )
 
-        response = {
-            "ok": True,
-            "ticker": ticker,
-            "years": years,
-            "html_preview": html[:200] + "..."
-        }
-
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(response)
+            "body": json.dumps({
+                "ok": True,
+                "ticker": ticker,
+                "years": years,
+                "html_preview": html[:200] + "..."
+            })
         }
 
     except Exception as e:
         return {
             "statusCode": 500,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"error": str(e)})
+            "body": json.dumps({
+                "error": "server_error",
+                "detail": str(e)
+            })
         }
