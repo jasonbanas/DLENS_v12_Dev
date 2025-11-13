@@ -1,7 +1,6 @@
 {
-  "ignoreCommand": "echo 'Ignore build folders'",
   "functions": {
-    "api/*.py": {
+    "api/spotlight.py": {
       "runtime": "python3.11"
     }
   }
