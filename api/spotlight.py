@@ -1,30 +1,48 @@
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+import json
 
-# Import generator
+# Import your mock HTML generator
 try:
     from api.services.generator import gpt_generate_html
 except ModuleNotFoundError:
     from services.generator import gpt_generate_html
 
-router = APIRouter(prefix="/api")
 
-@router.post("/spotlight")
-async def spotlight(request: Request):
-    data = await request.json()
+def handler(request):
+    try:
+        # Vercel passes request as a dict-like object
+        body = request.json()
 
-    ticker = data.get("ticker", "UNKNOWN")
-    years = int(data.get("years", 5))
+        ticker = body.get("ticker", "UNKNOWN")
+        years = int(body.get("years", 5))
 
-    html = gpt_generate_html(
-        prompt="Spotlight generation",
-        ticker=ticker,
-        years=years
-    )
+        html = gpt_generate_html(
+            prompt="Spotlight generation",
+            ticker=ticker,
+            years=years
+        )
 
-    return JSONResponse({
-        "ok": True,
-        "ticker": ticker,
-        "years": years,
-        "html_preview": html[:200] + "..."
-    })
+        filename = f"DLENS_Spotlight_{ticker}_Mock.html"
+
+        response = {
+            "ok": True,
+            "url": f"/reports/{filename}",
+            "ticker": ticker,
+            "years": years,
+            "html_preview": html[:200] + "..."
+        }
+
+        return {
+            "statusCode": 200,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps(response)
+        }
+
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({
+                "error": "internal_server_error",
+                "detail": str(e)
+            })
+        }

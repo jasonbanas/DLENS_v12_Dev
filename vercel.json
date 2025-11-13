@@ -1,15 +1,39 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/spotlight_handler.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 60
     }
-  ],
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1.py"
+    },
+
+    {
+      "src": "/reports/(.*)",
+      "dest": "/core/resources/$1"
+    },
+
+    {
+      "src": "/(.*)",
+      "dest": "/core/resources/index.html"
+    }
+  ]
+}
+{
+  "version": 3,
+  "functions": {
+    "api/spotlight.py": {
+      "runtime": "python3.11"
+    }
+  },
   "routes": [
     {
       "src": "/api/spotlight",
-      "dest": "api/spotlight_handler.py"
+      "dest": "/api/spotlight.py"
     }
   ]
 }
