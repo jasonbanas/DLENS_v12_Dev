@@ -1,0 +1,8 @@
+{
+  "ignoreCommand": "echo 'Ignore build folders'",
+  "functions": {
+    "api/*.py": {
+      "runtime": "python3.11"
+    }
+  }
+}
