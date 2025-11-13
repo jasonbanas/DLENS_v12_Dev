@@ -1,11 +1,15 @@
 {
-  "version": 3,
-  "functions": {
-    "api/*": {
-      "runtime": "python3.11"
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/spotlight_handler.py",
+      "use": "@vercel/python"
     }
-  },
+  ],
   "routes": [
-    { "src": "/api/spotlight", "dest": "/api/spotlight_handler.py" }
+    {
+      "src": "/api/spotlight",
+      "dest": "api/spotlight_handler.py"
+    }
   ]
 }
