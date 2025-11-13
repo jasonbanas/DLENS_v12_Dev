@@ -1,0 +1,138 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Insight Card 01 - Verified</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><style>
+:root{--bg:#0b1220;--panel:#0f172a;--ink:#e5e7eb;--muted:#94a3b8;--accent:#38bdf8;--chip:#1e293b;}
+html,body{background:var(--bg);color:var(--ink);font-family:system-ui,Segoe UI,Arial;line-height:1.45;margin:0}
+.container{max-width:980px;margin:0 auto;padding:24px}
+.card{background:var(--panel);border:1px solid #1f2a44;border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+h1{margin:0 0 10px;font-size:26px}
+h2{margin:14px 0 8px;font-size:18px;color:var(--accent)}
+small,.muted{color:var(--muted)}
+ul{margin:8px 0 8px 20px}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:10px;overflow:auto}
+.badge{display:inline-block;background:var(--chip);padding:4px 8px;border-radius:999px;font-size:12px;margin-right:6px}
+.kv{display:grid;grid-template-columns:180px 1fr;gap:8px}
+.footer{font-size:12px;color:var(--muted);margin-top:16px}
+</style></head>
+<body>
+<div class="container">
+  <h1>Insight Card 01 - Verified</h1>
+  <div class="muted">ID: IC_2025-10-12_EMBODIED_AI_AGENTIC_INFRA_001_VER • Version 3.0 • Created: 2025-10-13T01:35:46Z (UTC)</div>
+
+  <div class="card">
+    <h2>What’s Verified</h2>
+    <ul>
+      <li><b>IEA 2025:</b> Global data‑centre electricity demand set to ~double by 2030; AI is the dominant driver.</li>
+      <li><b>DeepMind RT‑2:</b> VLA model maps perception + language → robotic action; evidence of VLA maturity.</li>
+      <li><b>NVIDIA (Jensen Huang):</b> Operator framing of a “Physical AI” era focused on robotics and real‑world agents.</li>
+    </ul>
+    <div class="code">Truth Audit → Probability 85% • Utility 9/10 • Frogfree 8/10</div>
+  </div>
+
+  <div class="card">
+    <h2>Consolidated Claims (with confidence)</h2>
+    <ul>
+      <li>Embodied/Physical AI is the next wave — robotics + autonomy <span class="badge">0.80</span></li>
+      <li>Energy & compute are binding constraints (2025–2030) <span class="badge">0.85</span></li>
+      <li>VLA stacks (e.g., RT‑2) unify perception, language, action <span class="badge">0.85</span></li>
+      <li>Agentic OS competition will consolidate attention <span class="badge">0.60</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Implications for DLENS</h2>
+    <ul>
+      <li><b>Compute/Energy Builders:</b> overweight in ECO; monitor power procurement, cooling, HBM/packaging capacity.</li>
+      <li><b>Autonomy Readiness:</b> include VLA maturity within XDLens‑E/S; gate score changes on deployments.</li>
+      <li><b>Operator Roadmaps:</b> consider Probability nudges only when tied to shipping products or on‑site evidence.</li>
+    </ul>
+  </div>
+
+  <div class="footer">Embedded JSON below enables KB ingestion (consolidated v1+v2).</div>
+  <script type="application/json" id="dlens-card-json">
+{
+  "id": "IC_2025-10-12_EMBODIED_AI_AGENTIC_INFRA_001_VER",
+  "title": "Insight Card 01 - Verified",
+  "version": "3.0",
+  "created_utc": "2025-10-13T01:35:46Z",
+  "source": {
+    "bundle_title": "Embodied AI & Agentic Infrastructure \u2014 Consolidated (v1 + v2)",
+    "verifications": [
+      {
+        "claim": "Data-centre electricity demand ~doubling by 2030 driven by AI",
+        "primary": [
+          "IEA 2025 analysis/report"
+        ]
+      },
+      {
+        "claim": "VLA (Vision-Language-Action) models enabling robotic control",
+        "primary": [
+          "Google DeepMind RT\u20112 blog + project site"
+        ]
+      },
+      {
+        "claim": "'Physical AI' era framing from operator",
+        "primary": [
+          "NVIDIA CEO Jensen Huang keynote/blog"
+        ]
+      }
+    ],
+    "notes": "Thematic sources from Moonshots podcast, UiPath vs Palantir short, and Dylan Jovine clip were retained as context only."
+  },
+  "entities": [
+    "AMD",
+    "BlackRock",
+    "Cerebras",
+    "Google",
+    "Google DeepMind",
+    "Meta",
+    "Micron",
+    "NVIDIA",
+    "OpenAI",
+    "Palantir",
+    "TSMC",
+    "Tesla",
+    "UiPath"
+  ],
+  "claims": [
+    {
+      "quote": "Embodied/Physical AI is the next wave \u2014 models acting safely in the real world (robots, logistics, vehicles).",
+      "status": "Verified",
+      "confidence": 0.8
+    },
+    {
+      "quote": "Energy and compute capacity are the primary bottlenecks for AI scale in 2025\u20132030.",
+      "status": "Verified",
+      "confidence": 0.85
+    },
+    {
+      "quote": "Vision\u2011Language\u2011Action (VLA) stacks are emerging for robotics (e.g., RT\u20112), unifying perception, language, and action.",
+      "status": "Verified",
+      "confidence": 0.85
+    },
+    {
+      "quote": "Agentic OS competition will consolidate attention around assistant platforms.",
+      "status": "Plausible",
+      "confidence": 0.6
+    }
+  ],
+  "implications": [
+    "DLENS ECO overweight: Compute Builders and Energy Builders due to structural power/compute constraints.",
+    "Use VLA readiness as an input to XDLens\u2011E/S when assessing autonomy feasibility and timeline gating.",
+    "Operator roadmaps (e.g., NVIDIA Physical AI stack) may justify Probability nudges when tied to shipping products or deployments."
+  ],
+  "proposed_adjustments": [],
+  "tags": [
+    "EmbodiedAI",
+    "PhysicalAI",
+    "VLA",
+    "EnergyConstraint",
+    "ComputeSupply",
+    "AgenticOS",
+    "DLENSECO"
+  ],
+  "notes": "Consolidated from prior Card #1 v1 (thematic) and v2 (verified). Only verified or strongly supported items should affect scoring under v12."
+}
+  </script>
+</div>
+</body></html>

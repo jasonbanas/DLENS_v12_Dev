@@ -1,0 +1,1 @@
+{"id": "IC_2025-10-09_NVDA_SUPPLY_001", "source": {"type": "YouTube", "title": "Foundry Panel: 2026 GPU capacity outlook", "recorded_date": "2025-10-09"}, "entities": ["NVDA", "TSMC", "HBM4"], "claims": [{"quote": "CoWoS capacity doubles by Q3 2026", "status": "Verified", "confidence": 0.85}], "proposed_adjustments": [{"ticker": "NVDA", "field": "ProbabilityPct", "delta": 3}]}

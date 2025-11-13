@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DLENS Spotlight v12 Request",
+  "type": "object",
+  "properties": {
+    "ticker": {
+      "type": "string"
+    },
+    "as_of_utc": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "include_kb": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "ticker"
+  ]
+}

@@ -1,0 +1,4 @@
+# Don't exclude the backend
+!.env.example
+!api/
+!api/services/

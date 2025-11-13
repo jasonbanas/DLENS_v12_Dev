@@ -1,0 +1,7 @@
+{
+  "tickers": [
+    "NVDA",
+    "TSLA"
+  ],
+  "include_kb": true
+}

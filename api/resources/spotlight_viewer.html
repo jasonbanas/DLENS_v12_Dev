@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DLENS Spotlight Unified Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, Segoe UI, Arial;
+      background: #f9fafc;
+    }
+    .navbar {
+      display: flex;
+      background: #0f172a;
+      color: white;
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      align-items: center;
+    }
+    .tabs {
+      display: flex;
+      background: #111827;
+      padding: 0;
+      margin: 0;
+    }
+    .tab {
+      padding: 12px 18px;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .tab:hover {
+      background: #1f2937;
+    }
+    .tab.active {
+      background: #2563eb;
+      color: white;
+    }
+    iframe {
+      width: 100%;
+      height: calc(100vh - 100px);
+      border: none;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">DLENS Spotlight Unified Viewer</div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="loadResource('DLENS_v12_Gold_Definitions_and_Rules_251012.html', this)">Definitions & Rules</div>
+    <div class="tab" onclick="loadResource('DLENS_Spotlight_FORD_ID_251009_v12_Gold_v7.html', this)">FORD Spotlight</div>
+    <div class="tab" onclick="loadResource('DLENS_Spotlight_TSLA_ID_251009_v12_Gold_v7.html', this)">TSLA Spotlight</div>
+    <div class="tab" onclick="loadResource('DLENS_Spotlight_USAR_ID_251010_v12_Gold_MATCH_TSLA.html', this)">USAR Match TSLA</div>
+    <div class="tab" onclick="loadResource('DLENS_Hunt_601_7y_CoreOnly_v12_GOLD_251009_TOP20.html', this)">Hunt 601 7y CoreOnly</div>
+  </div>
+
+  <iframe id="viewer" src="DLENS_v12_Gold_Definitions_and_Rules_251012.html"></iframe>
+
+  <script>
+    function loadResource(file, el) {
+      document.getElementById("viewer").src = file;
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      el.classList.add("active");
+    }
+  </script>
+</body>
+</html>

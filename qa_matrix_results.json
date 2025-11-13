@@ -1,0 +1,107 @@
+﻿[
+    {
+        "ticker":  "TSLA",
+        "years":  6,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_TSLA_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "TSLA",
+        "years":  10,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_TSLA_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "TSLA",
+        "years":  12,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_TSLA_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "NVDA",
+        "years":  6,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_NVDA_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "NVDA",
+        "years":  10,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_NVDA_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "NVDA",
+        "years":  12,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_NVDA_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "AAPL",
+        "years":  6,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_AAPL_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "AAPL",
+        "years":  10,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_AAPL_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "AAPL",
+        "years":  12,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_AAPL_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "BYDDF",
+        "years":  6,
+        "status":  "OK",
+        "url":  "/static/reports/demo/DLENS_Spotlight_BYDDF_ID_251104_GoldStandard_v12.html",
+        "meta":  "{\"errs\":0,\"gold_v\":\"v12\"}"
+    },
+    {
+        "ticker":  "BYDDF",
+        "years":  10,
+        "status":  "FAIL",
+        "url":  null,
+        "meta":  "The remote server returned an error: (429) TOO MANY REQUESTS."
+    },
+    {
+        "ticker":  "BYDDF",
+        "years":  12,
+        "status":  "FAIL",
+        "url":  null,
+        "meta":  "The remote server returned an error: (429) TOO MANY REQUESTS."
+    },
+    {
+        "ticker":  "RIVN",
+        "years":  6,
+        "status":  "FAIL",
+        "url":  null,
+        "meta":  "The remote server returned an error: (429) TOO MANY REQUESTS."
+    },
+    {
+        "ticker":  "RIVN",
+        "years":  10,
+        "status":  "FAIL",
+        "url":  null,
+        "meta":  "The remote server returned an error: (429) TOO MANY REQUESTS."
+    },
+    {
+        "ticker":  "RIVN",
+        "years":  12,
+        "status":  "FAIL",
+        "url":  null,
+        "meta":  "The remote server returned an error: (429) TOO MANY REQUESTS."
+    }
+]

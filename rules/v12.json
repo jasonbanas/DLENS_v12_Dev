@@ -1,0 +1,36 @@
+{
+  "standard": "v12",
+  "two_source_csp": true,
+  "metrics": [
+    "DUU",
+    "ProbabilityPct",
+    "MostLikelyPrice6y",
+    "Multiple_xCSP",
+    "UpsidePct",
+    "Utility",
+    "Frogfree",
+    "FEP",
+    "FVU",
+    "DUU_ECO",
+    "ScienceDependency",
+    "XDLensE",
+    "XDLensS",
+    "MixES",
+    "DDI",
+    "Tier",
+    "Subsidy",
+    "Paradigm"
+  ],
+  "hunt": {
+    "min_duu": 7,
+    "sort": [
+      "-DUU",
+      "-DDI"
+    ]
+  },
+  "spotlight": {
+    "sections": 12,
+    "peer_table_columns": 5,
+    "truth_audit_block": true
+  }
+}

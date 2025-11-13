@@ -1,0 +1,47 @@
+import os
+from datetime import datetime
+
+def save_hunt_report(company_name, market_cap, csp_markets, updates_30d, subsidy_percent, truth_score, strengths, risks, peers, paradigm_result):
+    """
+    Auto-creates and saves hunt_report.txt inside the /resources folder.
+    """
+
+    # Make sure resources folder exists
+    os.makedirs("resources", exist_ok=True)
+
+    # File path
+    save_path = os.path.join("resources", "hunt_report.txt")
+
+    # Format the content
+    content = f"""=== DLENS Disruptor Hunt Report ===
+Company: {company_name}
+Date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+⚡ Real-time Anchoring:
+- Market cap: {market_cap}
+- CSP: Active in {csp_markets} markets
+- 30-day updates: {updates_30d}%
+
+🏭 Subsidy Dependence:
+- Reliant on {subsidy_percent}% energy credits
+
+🧠 Truth Audit Summary:
+- Score: {truth_score}/10
+- Key strengths: {strengths}
+- Risks: {risks}
+
+📊 Peer Comparison:
+{" | ".join(peers.keys())}
+{" | ".join(str(v) for v in peers.values())}
+
+🏁 Paradigm Comparison:
+{paradigm_result}
+"""
+
+    # Write the file
+    with open(save_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    print(f"✅ Hunt report successfully saved to: {save_path}")
+
+    return save_path
