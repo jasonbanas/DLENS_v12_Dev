@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/spotlight.py": {
-      "runtime": "vercel-python@3.9"
-    }
-  }
-}
