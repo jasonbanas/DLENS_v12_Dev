@@ -1,39 +1,13 @@
 {
   "version": 2,
+  "public": "public",
   "functions": {
     "api/*.py": {
-      "runtime": "python3.11",
-      "maxDuration": 60
+      "runtime": "python3.12"
     }
   },
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1.py"
-    },
-
-    {
-      "src": "/reports/(.*)",
-      "dest": "/core/resources/$1"
-    },
-
-    {
-      "src": "/(.*)",
-      "dest": "/core/resources/index.html"
-    }
-  ]
-}
-{
-  "version": 3,
-  "functions": {
-    "api/spotlight.py": {
-      "runtime": "python3.11"
-    }
-  },
-  "routes": [
-    {
-      "src": "/api/spotlight",
-      "dest": "/api/spotlight.py"
-    }
+    { "src": "/api/(.*)", "dest": "/api/$1.py" },
+    { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
