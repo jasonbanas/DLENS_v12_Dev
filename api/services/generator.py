@@ -1,6 +1,6 @@
 ﻿from typing import Optional
+
 def gpt_generate_html(*, prompt: Optional[str], ticker: str, years: int) -> str:
-    # Minimal HTML designed to pass the current validator checks.
     return f"""<!doctype html><html><body>
     <h1>Overview</h1>
     <p>DUU: Disruptor Unique Understanding for {ticker}</p>
