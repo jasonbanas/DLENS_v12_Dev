@@ -109,17 +109,15 @@
 </div>
 
 <script>
-  // USER ID placeholder (same as original code)
-  const USER_ID = window.USER_ID || "demo-user";
-
   document.getElementById("spotForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const ticker = document.getElementById("q").value.trim().toUpperCase();
+    const years = Number(document.getElementById("yrs").value);
+
     const body = {
-      query: document.getElementById("q").value.trim(),
-      years: Number(document.getElementById("yrs").value),
-      user_id: USER_ID,
-      email_opt_in: document.getElementById("em").checked
+      ticker: ticker,      // ✔ CORRECT FIELD NAME
+      years: years         // ✔ Matches backend
     };
 
     try {
@@ -139,7 +137,7 @@
       // ✔ SHOW RESULT SECTION
       document.getElementById("result").style.display = "block";
 
-      // ✔ API RETURNS e.g. /reports/DLENS_Spotlight_TSLA.html
+      // ✔ API RETURNS e.g. /reports/demo/DLENS_Spotlight_AAPL_xxx.html
       document.getElementById("frame").src = j.url;
       document.getElementById("dl").href = j.url;
       document.getElementById("open").href = j.url;
@@ -149,6 +147,7 @@
     }
   });
 </script>
+
 
 </body>
 </html>
