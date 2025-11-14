@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
   <title>DLENS Spotlight Generator</title>
 </head>
 
@@ -9,50 +8,50 @@
   <h1>DLENS Spotlight Generator</h1>
 
   <form id="form">
-    <label>Ticker Symbol:</label><br>
+    <label>Ticker:</label><br>
     <input id="ticker" placeholder="TSLA"><br><br>
 
     <label>Projection Years:</label><br>
     <input id="years" type="number" min="1" max="20" value="10"><br><br>
 
-    <button type="submit">Generate Spotlight</button>
+    <button type="submit">Generate</button>
   </form>
 
   <div id="result" style="margin-top:20px; display:none;">
-    <p>Your report is ready:</p>
+    <p>Report ready:</p>
     <a id="open" target="_blank">Open Report</a>
   </div>
 
 <script>
-document.getElementById("form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+  document.getElementById("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const body = {
-    query: document.getElementById("ticker").value.trim(),
-    years: Number(document.getElementById("years").value)
-  };
+    const body = {
+      ticker: document.getElementById("ticker").value.trim(),
+      years: Number(document.getElementById("years").value)
+    };
 
-  try {
-    const r = await fetch("/api/spotlight", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
+    try {
+      const r = await fetch("/api/spotlight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
 
-    const j = await r.json();
+      const j = await r.json();
 
-    if (!r.ok) {
-      alert("Failed:\n" + (j.error || j.detail));
-      return;
+      if (!r.ok) {
+        alert("Failed:\n" + (j.detail || j.error));
+        return;
+      }
+
+      document.getElementById("result").style.display = "block";
+      document.getElementById("open").href = j.url;
+
+    } catch (err) {
+      alert("Network or Server Error: " + err);
     }
-
-    document.getElementById("result").style.display = "block";
-    document.getElementById("open").href = j.url;
-
-  } catch (err) {
-    alert("Network error: " + err);
-  }
-});
+  });
 </script>
 
 </body>
