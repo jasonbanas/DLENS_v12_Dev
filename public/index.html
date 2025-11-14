@@ -1,69 +1,58 @@
-<!-- VERSION 3 -->
-
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <title>DLENS Spotlight Generator</title>
-
-  <style>
-    body { font-family: Arial; background: #f5f7fb; padding: 40px; display: flex; justify-content: center; }
-    .container { max-width: 650px; width: 100%; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
-    input { width: 100%; padding: 12px; margin-top: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; text-transform: uppercase; }
-    button { width: 100%; padding: 14px; background: #0d6efd; border:none; color:#fff; font-size:18px; border-radius:6px; margin-top:20px; cursor:pointer; }
-    button:hover { background:#0b5ed7; }
-    iframe { width:100%; height:80vh; border:1px solid #ccc; margin-top:10px; }
-    #result { display:none; margin-top:20px; }
-  </style>
 </head>
+
 <body>
-
-<div class="container">
-
-  <h2>DLENS Spotlight Generator</h2>
+  <h1>DLENS Spotlight Generator</h1>
 
   <form id="spotForm">
-    <label>Ticker Symbol:</label>
-    <input id="q" placeholder="TSLA" required />
+    <label>Ticker Symbol:</label><br>
+    <input id="q" placeholder="TSLA" required /><br><br>
 
-    <label>Projection Years:</label>
-    <input id="yrs" type="number" min="1" max="20" value="10" required />
+    <label>Projection Years:</label><br>
+    <input id="yrs" type="number" min="1" max="20" value="10" required /><br><br>
 
     <button type="submit">Generate Spotlight</button>
   </form>
 
-  <div id="result">
-    <a id="open" target="_blank">Open Full Report</a>
-    <iframe id="frame"></iframe>
+  <div id="result" style="display:none; margin-top:20px;">
+    <p>Report ready:</p>
+    <a id="open" href="#" target="_blank">Open Report</a>
   </div>
-
-</div>
 
 <script>
 document.getElementById("spotForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const ticker = document.getElementById("q").value.trim().toUpperCase();
-    const years = Number(document.getElementById("yrs").value);
+  const body = {
+    ticker: document.getElementById("q").value.trim().toUpperCase(),
+    years: Number(document.getElementById("yrs").value)
+  };
 
-    const body = { ticker, years };
-
-    const res = await fetch("/api/spotlight", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(body)
+  try {
+    const r = await fetch("/api/spotlight", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body)
     });
 
-    const json = await res.json();
+    const j = await r.json();
 
-    if (!res.ok) {
-        alert("Failed:\n" + (json.detail || json.error));
-        return;
+    if (!r.ok) {
+      alert("Failed: " + (j.detail || j.error));
+      return;
     }
 
+    // SUCCESS
     document.getElementById("result").style.display = "block";
-    document.getElementById("frame").src = json.url;
-    document.getElementById("open").href = json.url;
+    document.getElementById("open").href = j.url;
+
+  } catch (err) {
+    alert("Network error: " + err);
+  }
 });
 </script>
 

@@ -15,8 +15,11 @@ def create_spotlight():
 
         else:  # POST
             payload = request.get_json(force=True) or {}
+            print("DEBUG PAYLOAD:", payload)
+
             ticker = sanitize_ticker(payload.get("ticker"))
             years = clamp_years(payload.get("years", 6))
+            
 
     except Exception as e:
         return jsonify({"error": "bad_request", "detail": str(e)}), 400
