@@ -24,7 +24,8 @@ STATIC_DIR = ROOT_DIR / "static"
 TEMPLATE_ROOT = API_DIR / "dlens_app"
 REPORTS_ROOT = ROOT_DIR / "reports"
 SERVICES_DIR = API_DIR / "services"
-RESOURCES_DIR = API_DIR / "resources"
+RESOURCES_DIR = ROOT_DIR / "core" / "resources"
+
 
 if str(SERVICES_DIR) not in sys.path:
     sys.path.insert(0, str(SERVICES_DIR))
