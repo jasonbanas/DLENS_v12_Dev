@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify, send_file, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from pathlib import Path
 import os
 
-# ------------------------------
+# -------------------------------------
 # IMPORT SERVICES
-# ------------------------------
+# -------------------------------------
 from services.generator import gpt_generate_html
 from services.validator import validate as validate_html
 from services.sanitize import sanitize_ticker, clamp_years
@@ -12,6 +12,7 @@ from services.storage import save_report
 from services.obs import log_event
 from services.ratelimit import allow
 from rules_engine import build_prompt
+
 
 TITLE_REQUIRED = "DLENS Disruptor Spotlight"
 
@@ -22,44 +23,55 @@ REPORTS_ROOT = API_DIR.parent / "reports"
 app = Flask(__name__)
 
 
-# ------------------------------
-# FIX TITLE
-# ------------------------------
+# -------------------------------------
+# FIX HTML <title>
+# -------------------------------------
 def _enforce_required_title(html: str) -> str:
     if "<head" not in html.lower():
         html = html.replace("<html", "<html><head></head>", 1)
+
     if "<title>" in html.lower():
         start = html.lower().index("<title>")
         end = html.lower().index("</title>") + 8
         html = html[:start] + f"<title>{TITLE_REQUIRED}</title>" + html[end:]
     else:
         html = html.replace("<head>", f"<head><title>{TITLE_REQUIRED}</title>")
+
     return html
 
 
-# ------------------------------
+# -------------------------------------
 # HEALTH CHECK
-# ------------------------------
+# -------------------------------------
 @app.get("/api/ping")
 def ping():
     return jsonify({"ok": True})
 
 
-# ------------------------------
-# SERVE HOMEPAGE UI
-# ------------------------------
+# -------------------------------------
+# HOMEPAGE
+# -------------------------------------
 @app.get("/")
 def home():
     return send_from_directory(RESOURCES_DIR, "index.html")
 
 
-# ------------------------------
-# SPOTLIGHT GENERATOR
-# ------------------------------
+# -------------------------------------
+# WILDCARD ROUTE (FIXES 404 ON VERCEL)
+# -------------------------------------
+@app.get("/<path:path>")
+def catch_all(path):
+    return send_from_directory(RESOURCES_DIR, "index.html")
+
+
+# -------------------------------------
+# CREATE SPOTLIGHT
+# -------------------------------------
 @app.post("/api/spotlight")
 def create_spotlight():
 
     user_id = "demo"
+
     if not allow(user_id, "/api/spotlight"):
         return jsonify({"error": "rate_limited"}), 429
 
@@ -83,10 +95,11 @@ def create_spotlight():
 
         html = _enforce_required_title(html)
         ok, errs, meta = validate_html(html)
+
         attempts.append({"ok": ok, "errs": errs, "meta": meta})
 
         if ok:
-            file_path, url = save_report(user_id, ticker, html)
+            path, url = save_report(user_id, ticker, html)
             log_event("report_ok", ticker=ticker, years=years)
             return jsonify({"url": url, "meta": meta, "attempts": attempts}), 201
 
@@ -96,9 +109,9 @@ def create_spotlight():
     return jsonify({"error": "validation_failed", "attempts": attempts}), 422
 
 
-# ------------------------------
+# -------------------------------------
 # HISTORY
-# ------------------------------
+# -------------------------------------
 @app.get("/api/history")
 def list_history():
     user_dir = REPORTS_ROOT / "demo"
@@ -115,9 +128,9 @@ def list_history():
     return jsonify(items)
 
 
-# ------------------------------
-# SERVE STORED REPORTS
-# ------------------------------
+# -------------------------------------
+# SERVE REPORT FILES
+# -------------------------------------
 @app.get("/reports/<user>/<filename>")
 def serve_report(user, filename):
     file_path = REPORTS_ROOT / user / filename
@@ -126,9 +139,9 @@ def serve_report(user, filename):
     return send_file(file_path)
 
 
-# ------------------------------
-# ASGI WRAPPER (VERCEL)
-# ------------------------------
+# -------------------------------------
+# VERCEL ASGI HANDLER
+# -------------------------------------
 try:
     from asgiref.wsgi import WsgiToAsgi
     asgi_app = WsgiToAsgi(app)

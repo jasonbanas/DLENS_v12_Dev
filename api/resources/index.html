@@ -11,8 +11,8 @@
     <label>Ticker:</label><br>
     <input id="ticker" placeholder="TSLA"><br><br>
 
-    <label>Projection Years:</label><br>
-    <input id="years" type="number" min="1" max="20" value="10"><br><br>
+    <label>Years:</label><br>
+    <input id="years" type="number" value="10"><br><br>
 
     <button type="submit">Generate</button>
   </form>
@@ -23,35 +23,30 @@
   </div>
 
 <script>
-  document.getElementById("form").addEventListener("submit", async (e) => {
-    e.preventDefault();
+document.getElementById("form").addEventListener("submit", async (e)=>{
+  e.preventDefault();
 
-    const body = {
-      ticker: document.getElementById("ticker").value.trim(),
-      years: Number(document.getElementById("years").value)
-    };
+  const body = {
+    ticker: document.getElementById("ticker").value.trim(),
+    years: Number(document.getElementById("years").value)
+  };
 
-    try {
-      const r = await fetch("/api/spotlight", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-
-      const j = await r.json();
-
-      if (!r.ok) {
-        alert("Failed:\n" + (j.detail || j.error));
-        return;
-      }
-
-      document.getElementById("result").style.display = "block";
-      document.getElementById("open").href = j.url;
-
-    } catch (err) {
-      alert("Network or Server Error: " + err);
-    }
+  const r = await fetch("/api/spotlight", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(body)
   });
+
+  const j = await r.json();
+
+  if(!r.ok){
+    alert("Error: " + (j.detail || j.error));
+    return;
+  }
+
+  document.getElementById("result").style.display = "block";
+  document.getElementById("open").href = j.url;
+});
 </script>
 
 </body>
