@@ -1,20 +1,32 @@
 from pathlib import Path
-from flask import Flask, request, jsonify, send_file, send_from_directory
+from flask import Flask, request, jsonify, send_file
 import os
+import sys
 import traceback
 
-# ---------------------------
-# IMPORT SERVICES (FIXED)
-# ---------------------------
-from services.generator import gpt_generate_html
-from services.validator import validate as validate_html
-from services.sanitize import sanitize_ticker, clamp_years
-from services.storage import save_report
-from services.obs import log_event
-from services.ratelimit import allow
-from rules_engine import build_prompt
+# ----------------------------------------
+# FIX: ENSURE PYTHON CAN FIND MODULES
+# ----------------------------------------
+API_DIR = Path(__file__).resolve().parent
+ROOT_DIR = API_DIR.parent
+
+sys.path.insert(0, str(API_DIR))
+sys.path.insert(0, str(ROOT_DIR))
+
+# ----------------------------------------
+# FIXED IMPORTS (MUST USE api.services.*)
+# ----------------------------------------
+from api.services.generator import gpt_generate_html
+from api.services.validator import validate as validate_html
+from api.services.sanitize import sanitize_ticker, clamp_years
+from api.services.storage import save_report
+from api.services.obs import log_event
+from api.services.ratelimit import allow
+from api.rules_engine import build_prompt
+
 
 TITLE_REQUIRED = "DLENS Disruptor Spotlight"
+
 
 def _enforce_required_title(html: str) -> str:
     if "<head" not in html.lower():
@@ -28,32 +40,30 @@ def _enforce_required_title(html: str) -> str:
     return html
 
 
-# ---------------------------
-# PATHS / APP INIT
-# ---------------------------
-API_DIR = Path(__file__).resolve().parent
-ROOT_DIR = API_DIR.parent
+# ----------------------------------------
+# PATHS
+# ----------------------------------------
 RESOURCES_DIR = ROOT_DIR / "core" / "resources"
 REPORTS_ROOT = ROOT_DIR / "reports"
 
 app = Flask(
     __name__,
     static_folder=str(RESOURCES_DIR),
-    static_url_path="/static"
+    static_url_path="/static",
 )
 
 
-# ---------------------------
+# ----------------------------------------
 # HEALTH CHECK
-# ---------------------------
+# ----------------------------------------
 @app.get("/api/ping")
 def ping():
     return jsonify({"ok": True})
 
 
-# ---------------------------
-# HOME PAGE UI
-# ---------------------------
+# ----------------------------------------
+# HOME PAGE
+# ----------------------------------------
 @app.get("/")
 def home():
     index_path = RESOURCES_DIR / "index.html"
@@ -66,20 +76,16 @@ def home():
     return send_file(index_path)
 
 
-# ---------------------------
+# ----------------------------------------
 # CREATE SPOTLIGHT
-# ---------------------------
+# ----------------------------------------
 @app.post("/api/spotlight")
 def create_spotlight():
-
-    # rate limit
     user_id = "demo"
+
     if not allow(user_id, "/api/spotlight"):
         return jsonify({"error": "rate_limited"}), 429
 
-    # -------------
-    # PARSE JSON
-    # -------------
     try:
         data = request.get_json(force=True)
         ticker = sanitize_ticker(data.get("query"))
@@ -87,9 +93,6 @@ def create_spotlight():
     except Exception as e:
         return jsonify({"error": "bad_request", "detail": str(e)}), 400
 
-    # -------------
-    # GENERATION LOOP
-    # -------------
     attempts = []
     repair = None
     MAX_ATTEMPTS = 3
@@ -111,17 +114,15 @@ def create_spotlight():
             log_event("report_ok", ticker=ticker, years=years)
             return jsonify({"url": url, "meta": meta, "attempts": attempts}), 201
 
-        # ask GPT to repair
         repair = f"Fix ONLY these issues: {errs}"
 
-    # if all attempts fail
     log_event("report_fail", ticker=ticker, attempts=attempts)
     return jsonify({"error": "validation_failed", "attempts": attempts}), 422
 
 
-# ---------------------------
-# LIST USER HISTORY
-# ---------------------------
+# ----------------------------------------
+# HISTORY
+# ----------------------------------------
 @app.get("/api/history")
 def list_history():
     user_dir = REPORTS_ROOT / "demo"
@@ -137,9 +138,9 @@ def list_history():
     return jsonify(items)
 
 
-# ---------------------------
+# ----------------------------------------
 # SERVE REPORT
-# ---------------------------
+# ----------------------------------------
 @app.get("/reports/<user>/<filename>")
 def serve_report(user, filename):
     file_path = REPORTS_ROOT / user / filename
@@ -148,9 +149,9 @@ def serve_report(user, filename):
     return send_file(file_path)
 
 
-# ---------------------------
-# ASGI (Required by Vercel)
-# ---------------------------
+# ----------------------------------------
+# VERCEL ASGI
+# ----------------------------------------
 try:
     from asgiref.wsgi import WsgiToAsgi
     asgi_app = WsgiToAsgi(app)
@@ -158,8 +159,8 @@ except Exception:
     asgi_app = app
 
 
-# ---------------------------
-# LOCAL RUN
-# ---------------------------
+# ----------------------------------------
+# LOCAL DEV
+# ----------------------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
