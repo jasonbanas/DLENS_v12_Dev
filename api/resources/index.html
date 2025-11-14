@@ -9,43 +9,33 @@
 
   <form id="form">
     <label>Ticker:</label><br>
-    <input id="ticker" placeholder="TSLA"><br><br>
+    <input id="ticker"><br><br>
 
-    <label>Years:</label><br>
+    <label>Projection Years:</label><br>
     <input id="years" type="number" value="10"><br><br>
 
     <button type="submit">Generate</button>
   </form>
 
-  <div id="result" style="margin-top:20px; display:none;">
-    <p>Report ready:</p>
-    <a id="open" target="_blank">Open Report</a>
-  </div>
+  <pre id="out"></pre>
 
 <script>
-document.getElementById("form").addEventListener("submit", async (e)=>{
+document.getElementById("form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const body = {
-    ticker: document.getElementById("ticker").value.trim(),
+    ticker: document.getElementById("ticker").value,
     years: Number(document.getElementById("years").value)
   };
 
   const r = await fetch("/api/spotlight", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
 
   const j = await r.json();
-
-  if(!r.ok){
-    alert("Error: " + (j.detail || j.error));
-    return;
-  }
-
-  document.getElementById("result").style.display = "block";
-  document.getElementById("open").href = j.url;
+  document.getElementById("out").textContent = JSON.stringify(j, null, 2);
 });
 </script>
 

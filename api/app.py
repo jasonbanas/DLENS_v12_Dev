@@ -1,63 +1,50 @@
 from pathlib import Path
 from flask import Flask, request, jsonify, send_file
-import os
-
-# ---------------------------------------------------
-# NO BROKEN IMPORTS. ALL CUSTOM MODULES REMOVED.
-# ---------------------------------------------------
 
 app = Flask(__name__)
 
-# Path to index.html
 BASE_DIR = Path(__file__).resolve().parent
 RESOURCES_DIR = BASE_DIR / "resources"
 
 
-# ---------------------------
+# -----------------------------------------
 # HEALTH CHECK
-# ---------------------------
+# -----------------------------------------
 @app.get("/api/ping")
 def ping():
     return jsonify({"ok": True})
 
 
-# ---------------------------
-# HOME PAGE UI
-# ---------------------------
+# -----------------------------------------
+# FRONTEND UI
+# -----------------------------------------
 @app.get("/")
 def home():
-    index_file = RESOURCES_DIR / "index.html"
+    index = RESOURCES_DIR / "index.html"
 
-    if not index_file.exists():
-        return f"index.html NOT FOUND in {index_file}", 404
+    if not index.exists():
+        return f"index.html NOT FOUND in {index}", 404
 
-    return send_file(index_file)
+    return send_file(index)
 
 
-# ---------------------------
-# SPOTLIGHT (STATIC DUMMY RESPONSE)
-# ---------------------------
+# -----------------------------------------
+# SPOTLIGHT (dummy for now)
+# -----------------------------------------
 @app.post("/api/spotlight")
-def spotlight():
-    """
-    TEST VERSION ONLY
-    This ensures your API works WITHOUT calling GPT,
-    WITHOUT calling validator,
-    WITHOUT calling rules_engine.
-    """
-
+def create_spotlight():
     data = request.get_json(silent=True) or {}
 
     return jsonify({
-        "url": "https://example.com/report.html",
-        "input": data,
-        "status": "OK (dummy response)"
+        "status": "success",
+        "message": "Working API skeleton",
+        "input": data
     }), 201
 
 
-# ---------------------------
-# ASGI adapter (Vercel)
-# ---------------------------
+# -----------------------------------------
+# ASGI SUPPORT FOR VERCEL
+# -----------------------------------------
 try:
     from asgiref.wsgi import WsgiToAsgi
     asgi_app = WsgiToAsgi(app)
@@ -65,5 +52,6 @@ except:
     asgi_app = app
 
 
+# Local run
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
