@@ -14,7 +14,7 @@
     <label>Projection Years:</label><br>
     <input id="years" type="number" min="1" max="20" value="10" /><br><br>
 
-    <button type="submit">Generate</button>
+    <button type="submit">Generate Spotlight</button>
   </form>
 
   <div id="result" style="margin-top:20px; display:none;">
@@ -23,12 +23,12 @@
   </div>
 
 <script>
-  document.getElementById("spotForm").addEventListener("submit", async (e) => {
+  document.getElementById("form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const body = {
-      ticker: document.getElementById("q").value.trim(),
-      years: Number(document.getElementById("yrs").value)
+      query: document.getElementById("ticker").value.trim(),
+      years: Number(document.getElementById("years").value)
     };
 
     try {
@@ -41,13 +41,11 @@
       const j = await r.json();
 
       if (!r.ok) {
-        alert("Failed:\n" + (j.details?.join("\n") || j.error));
+        alert("Failed:\n" + (j.detail || j.error));
         return;
       }
 
       document.getElementById("result").style.display = "block";
-      document.getElementById("frame").src = j.url;
-      document.getElementById("dl").href = j.url;
       document.getElementById("open").href = j.url;
 
     } catch (err) {
@@ -55,7 +53,6 @@
     }
   });
 </script>
-
 
 </body>
 </html>
