@@ -1,44 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
   <title>DLENS Spotlight Generator</title>
 </head>
 
 <body>
   <h1>DLENS Spotlight Generator</h1>
 
-  <form id="spotForm">
+  <form id="form">
     <label>Ticker:</label><br>
-    <input id="q" placeholder="TSLA" /><br><br>
+    <input id="ticker" placeholder="TSLA" /><br><br>
 
-    <label>Years:</label><br>
-    <input id="yrs" type="number" min="1" max="20" value="6" /><br><br>
+    <label>Projection Years:</label><br>
+    <input id="years" type="number" min="1" max="20" value="10" /><br><br>
 
     <button type="submit">Generate</button>
   </form>
 
-  <div id="result" style="display:none;">
+  <div id="result" style="margin-top:20px; display:none;">
     <p>Report ready:</p>
-    <a id="open" href="#" target="_blank">Open Report</a>
+    <a id="open" target="_blank">Open Report</a>
   </div>
 
 <script>
-document.getElementById("spotForm").addEventListener("submit", async (e) => {
+document.getElementById("form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const body = {
-    ticker: document.getElementById("q").value.trim(),
-    years: Number(document.getElementById("yrs").value)
+    ticker: document.getElementById("ticker").value.trim().toUpperCase(),
+    years: Number(document.getElementById("years").value)
   };
+
+  console.log("Sending:", body);
 
   const r = await fetch("/api/spotlight", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
 
   const j = await r.json();
+  console.log("Response:", j);
 
   if (!r.ok) {
     alert("Failed: " + (j.detail || j.error));
