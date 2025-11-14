@@ -1,86 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
   <title>DLENS Spotlight Generator</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      padding: 40px;
-      display: flex;
-      justify-content: center;
-    }
-    .container {
-      width: 100%;
-      max-width: 650px;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #0d6efd;
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-top: 16px;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      margin-top: 20px;
-      padding: 14px;
-      font-size: 18px;
-      border-radius: 6px;
-      border: none;
-      background: #0d6efd;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0b5ed7;
-    }
-    #result {
-      margin-top: 25px;
-      display: none;
-    }
-    iframe {
-      width: 100%;
-      height: 80vh;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-top: 10px;
-    }
-    .links {
-      margin-bottom: 10px;
-    }
-    .links a {
-      margin-right: 20px;
-      font-weight: bold;
-      text-decoration: none;
-      color: #0d6efd;
-    }
+    body { font-family: Arial; background: #f5f7fb; padding: 40px; display: flex; justify-content: center; }
+    .container { max-width: 650px; width: 100%; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+    input { width: 100%; padding: 12px; margin-top: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; text-transform: uppercase; }
+    button { width: 100%; padding: 14px; background: #0d6efd; border:none; color:#fff; font-size:18px; border-radius:6px; margin-top:20px; cursor:pointer; }
+    button:hover { background:#0b5ed7; }
+    iframe { width:100%; height:80vh; border:1px solid #ccc; margin-top:10px; }
+    #result { display:none; margin-top:20px; }
   </style>
 </head>
 <body>
 
 <div class="container">
 
-  <h1>DLENS Spotlight Generator</h1>
+  <h2>DLENS Spotlight Generator</h2>
 
   <form id="spotForm">
     <label>Ticker Symbol:</label>
@@ -89,65 +27,43 @@
     <label>Projection Years:</label>
     <input id="yrs" type="number" min="1" max="20" value="10" required />
 
-    <label style="margin-top:14px;">
-      <input id="em" type="checkbox" checked />
-      Email me this report
-    </label>
-
     <button type="submit">Generate Spotlight</button>
   </form>
 
-  <!-- RESULT SECTION -->
   <div id="result">
-    <div class="links">
-      <a id="dl" download>Download</a>
-      <a id="open" target="_blank" rel="noreferrer">Open</a>
-    </div>
+    <a id="open" target="_blank">Open Full Report</a>
     <iframe id="frame"></iframe>
   </div>
 
 </div>
 
 <script>
-  document.getElementById("spotForm").addEventListener("submit", async (e) => {
+document.getElementById("spotForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const ticker = document.getElementById("q").value.trim().toUpperCase();
     const years = Number(document.getElementById("yrs").value);
 
-    const body = {
-      ticker: ticker,      // ✔ CORRECT FIELD NAME
-      years: years         // ✔ Matches backend
-    };
+    const body = { ticker, years };
 
-    try {
-      const r = await fetch("/api/spotlight", {
+    const res = await fetch("/api/spotlight", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: {"Content-Type":"application/json"},
         body: JSON.stringify(body)
-      });
+    });
 
-      const j = await r.json();
+    const json = await res.json();
 
-      if (!r.ok) {
-        alert("Failed:\n" + (j.details?.join("\n") || j.error));
+    if (!res.ok) {
+        alert("Failed:\n" + (json.detail || json.error));
         return;
-      }
-
-      // ✔ SHOW RESULT SECTION
-      document.getElementById("result").style.display = "block";
-
-      // ✔ API RETURNS e.g. /reports/demo/DLENS_Spotlight_AAPL_xxx.html
-      document.getElementById("frame").src = j.url;
-      document.getElementById("dl").href = j.url;
-      document.getElementById("open").href = j.url;
-
-    } catch (err) {
-      alert("Network or Server Error: " + err);
     }
-  });
-</script>
 
+    document.getElementById("result").style.display = "block";
+    document.getElementById("frame").src = json.url;
+    document.getElementById("open").href = json.url;
+});
+</script>
 
 </body>
 </html>
