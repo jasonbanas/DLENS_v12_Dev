@@ -23,34 +23,39 @@
   </div>
 
 <script>
-document.getElementById("form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+  document.getElementById("spotForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const body = {
-    ticker: document.getElementById("ticker").value.trim().toUpperCase(),
-    years: Number(document.getElementById("years").value)
-  };
+    const body = {
+      ticker: document.getElementById("q").value.trim(),
+      years: Number(document.getElementById("yrs").value)
+    };
 
-  console.log("Sending:", body);
+    try {
+      const r = await fetch("/api/spotlight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
 
-  const r = await fetch("/api/spotlight", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+      const j = await r.json();
+
+      if (!r.ok) {
+        alert("Failed:\n" + (j.details?.join("\n") || j.error));
+        return;
+      }
+
+      document.getElementById("result").style.display = "block";
+      document.getElementById("frame").src = j.url;
+      document.getElementById("dl").href = j.url;
+      document.getElementById("open").href = j.url;
+
+    } catch (err) {
+      alert("Network or Server Error: " + err);
+    }
   });
-
-  const j = await r.json();
-  console.log("Response:", j);
-
-  if (!r.ok) {
-    alert("Failed: " + (j.detail || j.error));
-    return;
-  }
-
-  document.getElementById("result").style.display = "block";
-  document.getElementById("open").href = j.url;
-});
 </script>
+
 
 </body>
 </html>
