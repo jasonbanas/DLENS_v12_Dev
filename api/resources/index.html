@@ -7,51 +7,46 @@
 <body>
   <h1>DLENS Spotlight Generator</h1>
 
-  <form id="spotForm">
+  <form id="form">
     <label>Ticker:</label><br>
-    <input id="q" placeholder="TSLA" /><br><br>
+    <input id="ticker" /><br><br>
 
     <label>Projection Years:</label><br>
-    <input id="yrs" type="number" min="1" max="20" value="10" /><br><br>
+    <input id="years" type="number" value="10" /><br><br>
 
     <button type="submit">Generate</button>
   </form>
 
-  <div id="result" style="margin-top:20px; display:none;">
-    <p>Report ready:</p>
+  <div id="result" style="margin-top:20px;display:none;">
+    <p>Generated report:</p>
     <a id="open" target="_blank">Open Report</a>
   </div>
 
 <script>
-  document.getElementById("spotForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+document.getElementById("form").onsubmit = async (e) => {
+  e.preventDefault();
 
-    const body = {
-      ticker: document.getElementById("q").value.trim(),
-      years: Number(document.getElementById("yrs").value)
-    };
+  const body = {
+    ticker: document.getElementById("ticker").value,
+    years: Number(document.getElementById("years").value)
+  };
 
-    try {
-      const r = await fetch("/api/spotlight", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-
-      const j = await r.json();
-
-      if (!r.ok) {
-        alert("Failed:\n" + (j.details?.join("\n") || j.error));
-        return;
-      }
-
-      document.getElementById("result").style.display = "block";
-      document.getElementById("open").href = j.url;
-
-    } catch (err) {
-      alert("Server Error: " + err);
-    }
+  const r = await fetch("/api/spotlight", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
   });
+
+  const j = await r.json();
+
+  if (!r.ok) {
+    alert("Error: " + j.error + "\n" + (j.message ?? ""));
+    return;
+  }
+
+  document.getElementById("result").style.display = "block";
+  document.getElementById("open").href = j.url;
+};
 </script>
 
 </body>

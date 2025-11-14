@@ -1,29 +1,15 @@
-﻿from typing import Optional
+﻿from .llm_client import get_client
 
-def gpt_generate_html(*, prompt: Optional[str], ticker: str, years: int) -> str:
-    return f"""<!doctype html><html><body>
-    <h1>Overview</h1>
-    <p>DUU: Disruptor Unique Understanding for {ticker}</p>
+def gpt_generate_html(prompt, ticker, years):
+    client = get_client()
+    msg = f"Generate DLENS Spotlight for {ticker} over {years} years.\n\n{prompt}"
 
-    <h2>Peer Table</h2>
-    <table><tr>
-      <th>Peer</th><th>Metric1</th><th>Metric2</th><th>Metric3</th><th>Metric4</th>
-    </tr><tr><td>A</td><td>1</td><td>2</td><td>3</td><td>4</td></tr></table>
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You output DLENS Spotlight HTML only."},
+            {"role": "user", "content": msg}
+        ]
+    )
 
-    <h2>Truth Audit</h2>
-    line 1<br/>line 2<br/>line 3
-
-    <h2>Compliance Checklist</h2>
-    <ul>
-      <li>a</li><li>b</li><li>c</li><li>d</li><li>e</li><li>f</li><li>g</li><li>h</li>
-    </ul>
-
-    <h2>CSP Sources</h2>
-    <div>Google Finance: $123.45</div>
-    <div>Yahoo Finance: $123.40</div>
-    <div>UTC: 2025-11-03T18:00:00Z</div>
-
-    <script src="https://s3.tradingview.com/tv.js"></script>
-    <script>new TradingView.widget({{ "symbol": "{ticker}", "interval": "D" }});</script>
-    <h2>TradingView</h2>
-    </body></html>"""
+    return response.choices[0].message.content
