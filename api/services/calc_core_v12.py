@@ -2,7 +2,7 @@
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 from .market_feed import MarketFeed
-from ..rules_engine import RulesEngine
+from .rules_engine import RulesEngine
 
 class CalcCoreV12:
     def __init__(self):

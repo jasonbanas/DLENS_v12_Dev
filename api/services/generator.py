@@ -1,15 +1,31 @@
-﻿from .llm_client import get_client
+﻿import os
 
-def gpt_generate_html(prompt, ticker, years):
-    client = get_client()
-    msg = f"Generate DLENS Spotlight for {ticker} over {years} years.\n\n{prompt}"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You output DLENS Spotlight HTML only."},
-            {"role": "user", "content": msg}
-        ]
-    )
+os.makedirs(REPORTS_DIR, exist_ok=True)
 
-    return response.choices[0].message.content
+def generate_spotlight(ticker, years):
+    # TARGET FILE NAME
+    filename = f"DLENS_Spotlight_{ticker}.html"
+    full_path = os.path.join(REPORTS_DIR, filename)
+
+    # LOOK FOR A PREMADE FILE (e.g. from your TradingView templates)
+    template_path = os.path.join(BASE_DIR, "static_reports", f"{ticker.lower()}.html")
+
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            html = f.read()
+    else:
+        # fallback placeholder
+        html = f"""
+        <h1>DLENS Spotlight for {ticker}</h1>
+        <p>Projection Years: {years}</p>
+        <p>Status: Placeholder output.</p>
+        """
+
+    # SAVE OUTPUT
+    with open(full_path, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    return f"/api/reports/{filename}"

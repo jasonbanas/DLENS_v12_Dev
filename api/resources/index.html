@@ -1,52 +1,157 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>DLENS Spotlight Generator</title>
+<meta charset="UTF-8" />
+<title>DLENS Spotlight Generator</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #0d1117;
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .card {
+    width: 420px;
+    background: #161b22;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #58a6ff;
+    letter-spacing: 1px;
+  }
+
+  label {
+    margin-top: 12px;
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: none;
+    background: #0d1117;
+    color: white;
+    font-size: 16px;
+    border: 1px solid #30363d;
+  }
+
+  input:focus {
+    outline: 2px solid #58a6ff;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background: linear-gradient(90deg, #238636, #2ea043);
+    border-radius: 8px;
+    border: none;
+    color: white;
+    font-size: 17px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+    box-shadow: 0 0 10px rgba(34,197,94,0.4);
+  }
+
+  button:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+
+  #loading {
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+    color: #aaa;
+  }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+</style>
 </head>
 
 <body>
+<div class="card">
+
   <h1>DLENS Spotlight Generator</h1>
 
-  <form id="form">
-    <label>Ticker:</label><br>
-    <input id="ticker" /><br><br>
+  <label>Ticker Symbol</label>
+  <input id="ticker" placeholder="TSLA" list="tickers">
 
-    <label>Projection Years:</label><br>
-    <input id="years" type="number" value="10" /><br><br>
+  <datalist id="tickers">
+    <option value="TSLA">
+    <option value="AAPL">
+    <option value="MSFT">
+    <option value="NVDA">
+    <option value="AMZN">
+    <option value="META">
+    <option value="GOOG">
+    <option value="NIO">
+    <option value="BYD">
+  </datalist>
 
-    <button type="submit">Generate</button>
-  </form>
+  <label>Projection Years</label>
+  <input id="years" type="number" value="10" min="1" max="20">
 
-  <div id="result" style="margin-top:20px;display:none;">
-    <p>Generated report:</p>
-    <a id="open" target="_blank">Open Report</a>
-  </div>
+  <button onclick="generate()">Generate Spotlight</button>
+
+  <div id="loading">⏳ Generating Spotlight…</div>
+
+</div>
 
 <script>
-document.getElementById("form").onsubmit = async (e) => {
-  e.preventDefault();
+async function generate() {
+  const ticker = document.getElementById("ticker").value.trim();
+  const years = parseInt(document.getElementById("years").value);
 
-  const body = {
-    ticker: document.getElementById("ticker").value,
-    years: Number(document.getElementById("years").value)
-  };
+  if (!ticker) return alert("Please enter a ticker symbol!");
 
-  const r = await fetch("/api/spotlight", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
+  document.getElementById("loading").style.display = "block";
 
-  const j = await r.json();
+  const body = { query: ticker, years: years };
 
-  if (!r.ok) {
-    alert("Error: " + j.error + "\n" + (j.message ?? ""));
-    return;
+  try {
+    const r = await fetch("/api/spotlight", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body)
+    });
+
+    const j = await r.json();
+
+    if (!r.ok) {
+      alert("Error: " + j.error);
+      document.getElementById("loading").style.display = "none";
+      return;
+    }
+
+    window.open(j.url, "_blank");
+    document.getElementById("loading").style.display = "none";
+
+  } catch (err) {
+    alert("Network Error: " + err);
+    document.getElementById("loading").style.display = "none";
   }
-
-  document.getElementById("result").style.display = "block";
-  document.getElementById("open").href = j.url;
-};
+}
 </script>
 
 </body>

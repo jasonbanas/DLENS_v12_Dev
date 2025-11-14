@@ -1,5 +1,5 @@
 ﻿from api.services.market_feed import get_two_source_csp
-from api.rules_engine import build_prompt
+from api.services.rules_engine import build_prompt
 from api.services.html_render import gpt_generate_html
 import re
 tkr, years = "TSLA", 10

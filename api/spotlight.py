@@ -1,11 +1,23 @@
 import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_REPORTS = BASE_DIR / "static_reports"   # folder for your sample HTML files
+
 
 def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
-    # PLACE YOUR REAL GENERATOR LOGIC HERE
-    # For now return dummy working URL
+    """
+    Instead of generating real AI report, load the static HTML template
+    from /api/static_reports/
+    """
 
-    filename = f"DLENS_Spotlight_{ticker}.html"
-    output_path = f"/reports/{filename}"
+    clean = ticker.upper().strip()
+    filename = f"DLENS_Spotlight_{clean}.html"
+    file_path = STATIC_REPORTS / filename
 
-    # This is ONLY sample output so your UI works.
-    return output_path
+    if not file_path.exists():
+        # return a simple HTML fallback file
+        return "/api/reports/not_found.html"
+
+    # return URL where browser can open it
+    return f"/api/reports/{filename}"
