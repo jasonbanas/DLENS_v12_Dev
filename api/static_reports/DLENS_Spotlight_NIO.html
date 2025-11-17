@@ -1,279 +1,181 @@
+Below is a complete HTML report for the ticker NIO, formatted as requested. This is a simulated report, as I cannot access real-time data or projections, but it serves as a template that can be filled in with current and accurate information.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>DLENS Disruptor Spotlight — NIO</title>
-
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f5f7fa;
-    margin: 0;
-    padding: 30px;
-    line-height: 1.6;
-  }
-  .container {
-    max-width: 900px;
-    margin: auto;
-    background: white;
-    padding: 40px;
-    border-radius: 14px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.09);
-  }
-  h1 {
-    color: #0a58ff;
-    margin-bottom: 5px;
-  }
-  h2 {
-    margin-top: 28px;
-  }
-  .tag {
-    background: #e8f0ff;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-weight: bold;
-    color: #0a58ff;
-    display: inline-block;
-    margin-bottom: 6px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 12px 0;
-  }
-  table, th, td {
-    border: 1px solid #ddd;
-  }
-  th, td {
-    padding: 10px;
-    text-align: left;
-  }
-  ul {
-    margin-top: 6px;
-  }
-  hr {
-    margin: 35px 0;
-    border: none;
-    border-top: 1px solid #ddd;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIO Financial Spotlight Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #2C3E50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #BDC3C7;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #ECF0F1;
+        }
+        .highlight {
+            background-color: #DFF9D8;
+            font-weight: bold;
+        }
+    </style>
 </head>
-
 <body>
-<div class="container">
 
-<h1>DLENS Disruptor Spotlight — NIO</h1>
-<div class="tag">DUU Score: 7.6 / 10</div>
+<h1>NIO Inc. (NIO) Financial Spotlight Report</h1>
 
-<p><strong>Most-Likely Price (10y):</strong> $48  
-(= 1.5× CSP $32) • Probability: 61%</p>
+<h2>Company Summary</h2>
+<p>NIO Inc. is a Chinese automotive manufacturer based in Shanghai, specializing in designing and developing electric vehicles (EVs). The company is known for its innovative battery swap technology and high-performance electric SUVs and sedans. Its vision is to shape the future of mobility by providing sustainable and intelligent electric vehicles.</p>
 
-<!-- TradingView CHART -->
-<h2>Market Performance (TradingView)</h2>
-<div class="tradingview-widget-container" style="margin-top: 30px;">
-  <div id="tradingview_chart"></div>
-</div>
-
-<script src="https://s3.tradingview.com/tv.js"></script>
-
-<script>
-// -------------------------------
-// Dynamic TICKER detection
-// -------------------------------
-const TICKER =
-    new URLSearchParams(location.search).get("t") || "AAPL";
-
-// Update page title text
-document.getElementById("title").textContent =
-    "DLENS Disruptor Spotlight — " + TICKER;
-
-// TradingView Chart
-new TradingView.widget({
-  "width": "100%",
-  "height": 500,
-  "symbol": TICKER,
-  "interval": "D",
-  "timezone": "Etc/UTC",
-  "theme": "dark",
-  "style": "1",
-  "locale": "en",
-  "toolbar_bg": "#000000",
-  "enable_publishing": false,
-  "withdateranges": true,
-  "hide_side_toolbar": false,
-  "allow_symbol_change": false,
-  "container_id": "tradingview_chart"
-});
-</script>
-
-<!-- TradingView Technical Analysis -->
-<div class="tradingview-widget-container" style="margin-top: 30px;">
-  <div id="tradingview_tech"></div>
-</div>
-
-<script>
-new TradingView.widget({
-  "container_id": "tradingview_tech",
-  "width": "100%",
-  "height": 480,
-  "symbol": TICKER,
-  "interval": "D",
-  "theme": "dark",
-  "style": "1",
-  "locale": "en",
-  "toolbar_bg": "#000000",
-  "studies": ["RSI@tv-basicstudies", "MACD@tv-basicstudies"]
-});
-</script>
-
-<!-- TradingView Company Profile -->
-<div class="tradingview-widget-container" style="margin-top: 30px;">
-  <div id="profileWidget"></div>
-</div>
-
-<script src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-profile.js"></script>
-
-<script>
-new TradingView.widget({
-    "container_id": "profileWidget",
-    "symbol": TICKER,
-    "width": "100%",
-    "height": 400,
-    "colorTheme": "dark",
-    "isTransparent": false,
-    "locale": "en"
-});
-</script>
-
-
-<div class="tradingview-widget-container" style="margin-top: 30px;">
-  <div id="financialsWidget"></div>
-</div>
-
-<script src="https://s3.tradingview.com/external-embedding/embed-widget-financials.js"></script>
-
-<script>
-new TradingView.widget({
-    "container_id": "financialsWidget",
-    "symbol": TICKER,
-    "colorTheme": "dark",
-    "isTransparent": false,
-    "displayMode": "regular",
-    "width": "100%",
-    "height": 450,
-    "locale": "en"
-});
-</script>
-
-<h2>What is the company</h2>
-<p>
-NIO is a premium electric vehicle manufacturer focused on autonomous driving,  
-battery-swapping infrastructure, and high-design intelligent EV systems.
-</p>
-
-<h2>Why now</h2>
-<p>
-Battery-swapping economics are improving, F4 autonomous platform is scaling,  
-and NIO’s European expansion opens higher-margin markets.
-</p>
-
-<h2>Feasibility</h2>
-<p>
-<strong>Feasibility Score:</strong> 8/10 — strong product differentiation,  
-but capital intensity and infrastructure scaling remain bottlenecks.
-</p>
-
-<h2>Founder Execution Premium</h2>
-<p>
-<strong>Execution Premium:</strong> 7.5/10 — visionary leadership with high innovation speed,  
-though financial discipline lags peers.
-</p>
-
-<h2>Peer Comparison</h2>
+<h2>Financial Snapshot</h2>
 <table>
-  <tr>
-    <th>Company</th>
-    <th>Technology</th>
-    <th>Scale</th>
-    <th>Subsidy Dependence</th>
-    <th>Position</th>
-  </tr>
-  <tr>
-    <td>NIO</td>
-    <td>Battery Swap + AD</td>
-    <td>Medium</td>
-    <td>Medium</td>
-    <td>Premium EV Innovator</td>
-  </tr>
-  <tr>
-    <td>TSLA</td>
-    <td>EV + FSD + AI</td>
-    <td>High</td>
-    <td>Low</td>
-    <td>Tech Leader</td>
-  </tr>
-  <tr>
-    <td>BYD</td>
-    <td>BEV + PHEV + Battery</td>
-    <td>Very High</td>
-    <td>Medium</td>
-    <td>Scale Leader</td>
-  </tr>
+    <tr>
+        <th>Metric</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Market Capitalization</td>
+        <td>$45 Billion</td>
+    </tr>
+    <tr>
+        <td>Revenue (Last Year)</td>
+        <td>$9 Billion</td>
+    </tr>
+    <tr>
+        <td>Net Income (Last Year)</td>
+        <td>-$1.5 Billion</td>
+    </tr>
+    <tr>
+        <td>P/E Ratio</td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Debt to Equity Ratio</td>
+        <td>0.5</td>
+    </tr>
+    <tr>
+        <td>Cash & Cash Equivalents</td>
+        <td>$7 Billion</td>
+    </tr>
 </table>
 
-<h2>Truth Audit</h2>
-<p>
-NIO passes DLENS Gold Standard on technical transparency  
-and independent validation of delivery reporting, battery-swap metrics,  
-and European regulatory filings.
-</p>
-
-<h2>Metrics to Watch</h2>
-<ul>
-  <li>Battery swap utilization rate</li>
-  <li>Gross margin recovery</li>
-  <li>Autonomous driving uptake</li>
-</ul>
-
-<h2>Milestones</h2>
-<ul>
-  <li>Next-gen 150 kWh semi-solid battery launch</li>
-  <li>European manufacturing localization</li>
-  <li>NIO Phone ecosystem roll-out</li>
-</ul>
-
-<h2>Risks</h2>
-<ul>
-  <li>Capital intensity and cash burn</li>
-  <li>High competition from BYD and Tesla</li>
-  <li>Regulatory pressure on Chinese EVs abroad</li>
-</ul>
-
-<h2>Decision-Ready Conclusion</h2>
-<p>
-NIO meets DLENS Gold Standard with strong differentiation in  
-battery-swap and premium EV design, but requires continued margin stabilization  
-and disciplined global expansion.
-</p>
-
-<hr>
-
-<h2>Compliance Checklist</h2>
-<ul>
-  <li>DLENS title verified</li>
-  <li>DUU inline present</li>
-  <li>5-column peer table</li>
-  <li>All required DLENS sections</li>
-  <li>TradingView chart integrated</li>
-  <li>CSP anchors validated</li>
-  <li>UTC timestamp detected</li>
-</ul>
-
 <h2>CSP Anchors</h2>
-<p><strong>Yahoo Finance:</strong> $32.00</p>
-<p><strong>Bloomberg:</strong> $31.85</p>
-<p><strong>Timestamp:</strong> UTC 2025-11-10 12:00</p>
+<ul>
+    <li><strong>Customer Satisfaction:</strong> 85% of users report satisfaction with NIO vehicles.</li>
+    <li><strong>Strong Innovation Pipeline:</strong> Continuous investment in R&D.</li>
+    <li><strong>Market Expansion:</strong> Plans to enter European and North American markets.</li>
+</ul>
 
-</div>
+<h2>DUU Score</h2>
+<p>The DUU score evaluates the company's performance based on key metrics: 
+    <strong>D</strong>urability: 7/10, 
+    <strong>U</strong>ncertainty: 5/10, 
+    <strong>U</strong>pside: 8/10.
+</p>
+
+<h2>10-Year Projection Table</h2>
+<table>
+    <tr>
+        <th>Year</th>
+        <th>Projected Revenue</th>
+        <th>Projected Net Income</th>
+        <th>Projected Market Cap</th>
+    </tr>
+    <tr>
+        <td>2024</td>
+        <td>$12 Billion</td>
+        <td>-$1 Billion</td>
+        <td>$50 Billion</td>
+    </tr>
+    <tr>
+        <td>2025</td>
+        <td>$16 Billion</td>
+        <td>$500 Million</td>
+        <td>$70 Billion</td>
+    </tr>
+    <tr>
+        <td>2026</td>
+        <td>$20 Billion</td>
+        <td>$2 Billion</td>
+        <td>$90 Billion</td>
+    </tr>
+    <tr>
+        <td>2027</td>
+        <td>$25 Billion</td>
+        <td>$3 Billion</td>
+        <td>$110 Billion</td>
+    </tr>
+    <tr>
+        <td>2028</td>
+        <td>$30 Billion</td>
+        <td>$4.5 Billion</td>
+        <td>$140 Billion</td>
+    </tr>
+    <tr>
+        <td>2029</td>
+        <td>$35 Billion</td>
+        <td>$6 Billion</td>
+        <td>$170 Billion</td>
+    </tr>
+    <tr>
+        <td>2030</td>
+        <td>$40 Billion</td>
+        <td>$8 Billion</td>
+        <td>$200 Billion</td>
+    </tr>
+    <tr>
+        <td>2031</td>
+        <td>$45 Billion</td>
+        <td>$10 Billion</td>
+        <td>$230 Billion</td>
+    </tr>
+    <tr>
+        <td>2032</td>
+        <td>$50 Billion</td>
+        <td>$12 Billion</td>
+        <td>$250 Billion</td>
+    </tr>
+    <tr>
+        <td>2033</td>
+        <td>$60 Billion</td>
+        <td>$15 Billion</td>
+        <td>$300 Billion</td>
+    </tr>
+</table>
+
+<h2>Highlights and Risks</h2>
+<h3>Highlights</h3>
+<ul>
+    <li>Expanding global presence with strategic partnerships.</li>
+    <li>Innovative battery technology giving a competitive advantage.</li>
+    <li>Strong brand recognition among electric vehicle consumers.</li>
+</ul>
+<h3>Risks</h3>
+<ul>
+    <li>Intense competition in the EV market.</li>
+    <li>Dependency on government regulations and subsidies.</li>
+    <li>Supply chain disruptions affecting production.</li>
+</ul>
+
 </body>
 </html>
+```
+
+This report is a basic template; please replace the placeholder data with the most current financial information and analysis for NIO.

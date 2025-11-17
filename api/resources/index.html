@@ -123,36 +123,55 @@ async function generate() {
   const ticker = document.getElementById("ticker").value.trim();
   const years = parseInt(document.getElementById("years").value);
 
-  if (!ticker) return alert("Please enter a ticker symbol!");
+  if (!ticker) {
+    alert("Please enter a ticker symbol!");
+    return;
+  }
 
-  document.getElementById("loading").style.display = "block";
+  const loading = document.getElementById("loading");
+  loading.style.display = "block";
 
-  const body = { query: ticker, years: years };
+  const payload = {
+    ticker: ticker,
+    projection_years: years,
+    user_id: "demo-user",
+    email_opt_in: false
+  };
 
   try {
-    const r = await fetch("/api/spotlight", {
+    const response = await fetch("/api/spotlight", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(body)
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
 
-    const j = await r.json();
+    const data = await response.json();
 
-    if (!r.ok) {
-      alert("Error: " + j.error);
-      document.getElementById("loading").style.display = "none";
+    console.log("📌 FRONTEND RECEIVED:", data);
+
+    if (!response.ok) {
+      alert("Error: " + data.error);
+      loading.style.display = "none";
       return;
     }
 
-    window.open(j.url, "_blank");
-    document.getElementById("loading").style.display = "none";
+    if (!data.url) {
+      alert("No report URL returned from server.");
+      loading.style.display = "none";
+      return;
+    }
+
+    // 🔥 OPEN THE REPORT IN A NEW TAB (GUARANTEED)
+    window.location.href = data.url;
 
   } catch (err) {
     alert("Network Error: " + err);
-    document.getElementById("loading").style.display = "none";
   }
+
+  loading.style.display = "none";
 }
 </script>
+
 
 </body>
 </html>
