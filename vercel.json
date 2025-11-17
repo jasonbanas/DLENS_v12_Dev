@@ -1,31 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/*.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "static_reports/**/*",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
-    {
-      "src": "/api/spotlight",
-      "dest": "/api/spotlight.py"
-    },
-    {
-      "src": "/api/reports/(.*)",
-      "dest": "/api/report.py?file=$1"
-    },
-    {
-      "src": "/",
-      "dest": "/index.html"
-    }
+    { "src": "/", "dest": "/resources/index.html" },
+    { "src": "/api/spotlight", "dest": "/api/spotlight.py" },
+    { "src": "/api/reports/(.*)", "dest": "/api/reports.py?filename=$1" }
   ]
 }

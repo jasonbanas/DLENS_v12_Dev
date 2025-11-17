@@ -1,47 +1,82 @@
-import os
-from openai import OpenAI
+# ============================================
+# spotlight.py (Business Logic for Spotlight)
+# ============================================
 
-def handler(request):
-    try:
-        body = request.json()
+from pathlib import Path
+import uuid
+import datetime
+import json
 
-        ticker = body.get("ticker", "").strip().upper()
-        years = int(body.get("projection_years", 10))
 
-        if not ticker:
-            return {"error": "ticker_missing"}, 400
+# Location of generated reports
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_REPORTS = BASE_DIR / "static_reports"
+STATIC_REPORTS.mkdir(exist_ok=True)
 
-        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-        prompt = f"""
-        Generate a detailed DLENS v12 style spotlight report for {ticker}.
-        Include:
-        - Company Summary
-        - DUU Score
-        - CSP Anchors
-        - 10-year projection table
-        - Highlights & Risks
+def generate_spotlight(ticker: str, projection_years: int = 10, user_id="demo", email_opt_in=False):
+    """
+    Main business logic used by the Vercel Serverless Function.
+    This version is a CLEAN template — insert your real logic here.
 
-        Output strictly in HTML with <section> tags.
-        Use a dark theme (black, blue, neon green).
-        """
+    Args:
+        ticker (str): Stock ticker symbol.
+        projection_years (int): Number of years to project.
+        user_id (str): Optional user ID or email.
+        email_opt_in (bool): Whether user opted into email updates.
 
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}]
-        )
+    Returns:
+        str: Public URL to the generated report.
+    """
 
-        html_output = completion.choices[0].message.content
+    # ---------------------------------------------------------------------
+    # 1. Validate Inputs
+    # ---------------------------------------------------------------------
+    ticker = ticker.upper().strip()
 
-        safe_name = f"DLENS_Spotlight_{ticker}.html"
-        out_path = f"static_reports/{safe_name}"
+    if not ticker:
+        raise ValueError("Ticker cannot be empty")
 
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(html_output)
+    # Make filename
+    timestamp = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+    file_id = f"{ticker}-{timestamp}-{uuid.uuid4().hex[:8]}.html"
 
-        return {
-            "url": f"/api/reports/{safe_name}"
-        }
+    output_file = STATIC_REPORTS / file_id
 
-    except Exception as e:
-        return {"error": str(e)}, 500
+    # ---------------------------------------------------------------------
+    # 2. INSERT YOUR REAL REPORT-GENERATION LOGIC HERE
+    # ---------------------------------------------------------------------
+    #
+    # Example placeholder content:
+    html = f"""
+    <html>
+    <head><title>Spotlight Report - {ticker}</title></head>
+    <body>
+        <h1>Spotlight Report</h1>
+        <p><strong>Ticker:</strong> {ticker}</p>
+        <p><strong>Projection Years:</strong> {projection_years}</p>
+        <p><strong>User:</strong> {user_id}</p>
+        <p><strong>Email Opt-in:</strong> {email_opt_in}</p>
+
+        <h2>Sample Output</h2>
+        <p>This is a placeholder Spotlight report.</p>
+        <p>Replace this with your actual financial model.</p>
+    </body>
+    </html>
+    """
+
+    # Write report to file
+    output_file.write_text(html, encoding="utf-8")
+
+    # ---------------------------------------------------------------------
+    # 3. Return Vercel Public URL
+    # ---------------------------------------------------------------------
+    public_url = f"/api/reports/{file_id}"
+
+    return public_url
+
+
+# For local debug (Optional)
+if __name__ == "__main__":
+    url = generate_spotlight("AAPL", 10)
+    print("Generated:", url)
