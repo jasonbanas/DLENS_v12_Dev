@@ -1,7 +1,7 @@
-flask==3.0.3
-werkzeug==3.0.2
-gunicorn==21.2.0
-
-python-dotenv==1.0.1
-requests==2.32.3
-openai==1.50.2
+Flask==3.0.0
+openai==1.51.0
+python-dotenv
+yfinance
+requests
+pandas
+numpy
