@@ -1,174 +1,47 @@
 import os
-from pathlib import Path
-from datetime import datetime
-import yfinance as yf
 from openai import OpenAI
 
-BASE_DIR = Path(__file__).resolve().parent
-REPORT_DIR = BASE_DIR / "static_reports"
-REPORT_DIR.mkdir(exist_ok=True)
-
-client = OpenAI()
-
-# ---------------------------------------------
-# Fetch Real-Time Price (Yahoo Finance)
-# ---------------------------------------------
-def get_live_price(ticker):
+def handler(request):
     try:
-        stock = yf.Ticker(ticker)
-        data = stock.history(period="1d")
+        body = request.json()
 
-        if data.empty:
-            return None, None, None
+        ticker = body.get("ticker", "").strip().upper()
+        years = int(body.get("projection_years", 10))
 
-        last_price = round(float(data["Close"].iloc[-1]), 2)
-        prev_close = round(float(data["Close"].iloc[0]), 2)
+        if not ticker:
+            return {"error": "ticker_missing"}, 400
 
-        change = round(last_price - prev_close, 2)
-        percent = round((change / prev_close) * 100, 2) if prev_close != 0 else 0
+        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-        timestamp = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+        prompt = f"""
+        Generate a detailed DLENS v12 style spotlight report for {ticker}.
+        Include:
+        - Company Summary
+        - DUU Score
+        - CSP Anchors
+        - 10-year projection table
+        - Highlights & Risks
 
-        return last_price, change, percent, timestamp
+        Output strictly in HTML with <section> tags.
+        Use a dark theme (black, blue, neon green).
+        """
 
-    except Exception:
-        return None, None, None, None
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
 
+        html_output = completion.choices[0].message.content
 
-# ---------------------------------------------
-# Generate Spotlight
-# ---------------------------------------------
-def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
+        safe_name = f"DLENS_Spotlight_{ticker}.html"
+        out_path = f"static_reports/{safe_name}"
 
-    # Get real-time price
-    price, change, percent, timestamp = get_live_price(ticker)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(html_output)
 
-    trend_color = "#22c55e" if change >= 0 else "#ef4444"
-    sign = "+" if change >= 0 else "-"
+        return {
+            "url": f"/api/reports/{safe_name}"
+        }
 
-    # Format price section
-    price_block = f"""
-        <div class="price-box">
-            <h2>{ticker.upper()} — ${price}</h2>
-            <p style="color:{trend_color}; font-size:18px;">
-                {sign}{abs(change)} ({sign}{abs(percent)}%)
-            </p>
-            <p class="price-updated">Updated: {timestamp}</p>
-        </div>
-    """ if price else """
-        <div class="price-box">
-            <h2>{ticker.upper()}</h2>
-            <p style="color:#aaa;">Live price unavailable</p>
-        </div>
-    """
-
-    # -----------------------------------------
-    # GPT GENERATION
-    # -----------------------------------------
-    prompt = f"""
-    Create a DLENS Spotlight report for ticker: {ticker}. 
-    Include sections:
-
-    - Company Summary
-    - Financial Snapshot (table)
-    - DUU Score
-    - CSP Anchors
-    - {projection_years}-Year Projection Table
-    - Highlights
-    - Risks
-    - Investment Verdict
-
-    Keep it factual, structured, and formatted in HTML (only <h2>, <p>, <table>, <tr>, <td>, <ul>, <li>, etc).
-    DO NOT include <html> or <body>.
-    """
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    gpt_html = response.choices[0].message.content
-
-    # -----------------------------------------
-    # FINAL HTML WRAPPING
-    # -----------------------------------------
-    final_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>DLENS Spotlight – {ticker}</title>
-        <style>
-            body {{
-                background: #0d1117;
-                color: white;
-                font-family: Arial, sans-serif;
-                padding: 30px;
-            }}
-            h1 {{
-                color: #58a6ff;
-                text-align: center;
-            }}
-            h2 {{
-                color: #58a6ff;
-                margin-top: 40px;
-            }}
-            table {{
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 15px;
-            }}
-            table, th, td {{
-                border: 1px solid #30363d;
-            }}
-            td, th {{
-                padding: 10px;
-            }}
-            .price-box {{
-                background: #161b22;
-                padding: 20px;
-                border-radius: 10px;
-                text-align: center;
-                margin-bottom: 30px;
-                border: 1px solid #30363d;
-                box-shadow: 0 0 20px rgba(0,0,0,0.4);
-            }}
-            .price-updated {{
-                color: #aaa;
-                font-size: 12px;
-            }}
-            .chart-box {{
-                margin: 25px auto;
-                text-align: center;
-            }}
-        </style>
-    </head>
-    <body>
-
-        <h1>DLENS Spotlight Report — {ticker.upper()}</h1>
-
-        {price_block}
-
-        <div class="chart-box">
-            <!-- TradingView Chart -->
-            <iframe 
-                src="https://s.tradingview.com/widgetembed/?symbol={ticker.upper()}&interval=60&theme=dark&style=1"
-                width="100%"
-                height="420"
-                frameborder="0">
-            </iframe>
-        </div>
-
-        {gpt_html}
-
-    </body>
-    </html>
-    """
-
-    # Save HTML report
-    filename = f"DLENS_Spotlight_{ticker.upper()}.html"
-    filepath = REPORT_DIR / filename
-
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(final_html)
-
-    return f"/api/reports/{filename}"
+    except Exception as e:
+        return {"error": str(e)}, 500

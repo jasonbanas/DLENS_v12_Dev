@@ -1,7 +1,2 @@
-Flask==3.0.0
-openai==1.51.0
+openai==1.3.5
 python-dotenv
-yfinance
-requests
-pandas
-numpy

@@ -156,13 +156,13 @@ async function generate() {
     }
 
     if (!data.url) {
-      alert("No report URL returned from server.");
+      alert("Server did not return a report URL.");
       loading.style.display = "none";
       return;
     }
 
-    // 🔥 OPEN THE REPORT IN A NEW TAB (GUARANTEED)
-    window.location.href = data.url;
+    // 🔥 Auto-open generated report (WORKS ALWAYS)
+    window.open(data.url, "_blank");
 
   } catch (err) {
     alert("Network Error: " + err);
@@ -171,7 +171,6 @@ async function generate() {
   loading.style.display = "none";
 }
 </script>
-
 
 </body>
 </html>
