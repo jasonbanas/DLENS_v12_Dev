@@ -1,82 +1,174 @@
-# ============================================
-# spotlight.py (Business Logic for Spotlight)
-# ============================================
-
+import os
 from pathlib import Path
-import uuid
-import datetime
-import json
+from datetime import datetime
+import yfinance as yf
+from openai import OpenAI
 
-
-# Location of generated reports
 BASE_DIR = Path(__file__).resolve().parent
-STATIC_REPORTS = BASE_DIR / "static_reports"
-STATIC_REPORTS.mkdir(exist_ok=True)
+REPORT_DIR = BASE_DIR / "static_reports"
+REPORT_DIR.mkdir(exist_ok=True)
+
+client = OpenAI()
+
+# ---------------------------------------------
+# Fetch Real-Time Price (Yahoo Finance)
+# ---------------------------------------------
+def get_live_price(ticker):
+    try:
+        stock = yf.Ticker(ticker)
+        data = stock.history(period="1d")
+
+        if data.empty:
+            return None, None, None
+
+        last_price = round(float(data["Close"].iloc[-1]), 2)
+        prev_close = round(float(data["Close"].iloc[0]), 2)
+
+        change = round(last_price - prev_close, 2)
+        percent = round((change / prev_close) * 100, 2) if prev_close != 0 else 0
+
+        timestamp = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+
+        return last_price, change, percent, timestamp
+
+    except Exception:
+        return None, None, None, None
 
 
-def generate_spotlight(ticker: str, projection_years: int = 10, user_id="demo", email_opt_in=False):
+# ---------------------------------------------
+# Generate Spotlight
+# ---------------------------------------------
+def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
+
+    # Get real-time price
+    price, change, percent, timestamp = get_live_price(ticker)
+
+    trend_color = "#22c55e" if change >= 0 else "#ef4444"
+    sign = "+" if change >= 0 else "-"
+
+    # Format price section
+    price_block = f"""
+        <div class="price-box">
+            <h2>{ticker.upper()} — ${price}</h2>
+            <p style="color:{trend_color}; font-size:18px;">
+                {sign}{abs(change)} ({sign}{abs(percent)}%)
+            </p>
+            <p class="price-updated">Updated: {timestamp}</p>
+        </div>
+    """ if price else """
+        <div class="price-box">
+            <h2>{ticker.upper()}</h2>
+            <p style="color:#aaa;">Live price unavailable</p>
+        </div>
     """
-    Main business logic used by the Vercel Serverless Function.
-    This version is a CLEAN template — insert your real logic here.
 
-    Args:
-        ticker (str): Stock ticker symbol.
-        projection_years (int): Number of years to project.
-        user_id (str): Optional user ID or email.
-        email_opt_in (bool): Whether user opted into email updates.
+    # -----------------------------------------
+    # GPT GENERATION
+    # -----------------------------------------
+    prompt = f"""
+    Create a DLENS Spotlight report for ticker: {ticker}. 
+    Include sections:
 
-    Returns:
-        str: Public URL to the generated report.
+    - Company Summary
+    - Financial Snapshot (table)
+    - DUU Score
+    - CSP Anchors
+    - {projection_years}-Year Projection Table
+    - Highlights
+    - Risks
+    - Investment Verdict
+
+    Keep it factual, structured, and formatted in HTML (only <h2>, <p>, <table>, <tr>, <td>, <ul>, <li>, etc).
+    DO NOT include <html> or <body>.
     """
 
-    # ---------------------------------------------------------------------
-    # 1. Validate Inputs
-    # ---------------------------------------------------------------------
-    ticker = ticker.upper().strip()
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
 
-    if not ticker:
-        raise ValueError("Ticker cannot be empty")
+    gpt_html = response.choices[0].message.content
 
-    # Make filename
-    timestamp = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
-    file_id = f"{ticker}-{timestamp}-{uuid.uuid4().hex[:8]}.html"
-
-    output_file = STATIC_REPORTS / file_id
-
-    # ---------------------------------------------------------------------
-    # 2. INSERT YOUR REAL REPORT-GENERATION LOGIC HERE
-    # ---------------------------------------------------------------------
-    #
-    # Example placeholder content:
-    html = f"""
+    # -----------------------------------------
+    # FINAL HTML WRAPPING
+    # -----------------------------------------
+    final_html = f"""
+    <!DOCTYPE html>
     <html>
-    <head><title>Spotlight Report - {ticker}</title></head>
+    <head>
+        <title>DLENS Spotlight – {ticker}</title>
+        <style>
+            body {{
+                background: #0d1117;
+                color: white;
+                font-family: Arial, sans-serif;
+                padding: 30px;
+            }}
+            h1 {{
+                color: #58a6ff;
+                text-align: center;
+            }}
+            h2 {{
+                color: #58a6ff;
+                margin-top: 40px;
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }}
+            table, th, td {{
+                border: 1px solid #30363d;
+            }}
+            td, th {{
+                padding: 10px;
+            }}
+            .price-box {{
+                background: #161b22;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                margin-bottom: 30px;
+                border: 1px solid #30363d;
+                box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            }}
+            .price-updated {{
+                color: #aaa;
+                font-size: 12px;
+            }}
+            .chart-box {{
+                margin: 25px auto;
+                text-align: center;
+            }}
+        </style>
+    </head>
     <body>
-        <h1>Spotlight Report</h1>
-        <p><strong>Ticker:</strong> {ticker}</p>
-        <p><strong>Projection Years:</strong> {projection_years}</p>
-        <p><strong>User:</strong> {user_id}</p>
-        <p><strong>Email Opt-in:</strong> {email_opt_in}</p>
 
-        <h2>Sample Output</h2>
-        <p>This is a placeholder Spotlight report.</p>
-        <p>Replace this with your actual financial model.</p>
+        <h1>DLENS Spotlight Report — {ticker.upper()}</h1>
+
+        {price_block}
+
+        <div class="chart-box">
+            <!-- TradingView Chart -->
+            <iframe 
+                src="https://s.tradingview.com/widgetembed/?symbol={ticker.upper()}&interval=60&theme=dark&style=1"
+                width="100%"
+                height="420"
+                frameborder="0">
+            </iframe>
+        </div>
+
+        {gpt_html}
+
     </body>
     </html>
     """
 
-    # Write report to file
-    output_file.write_text(html, encoding="utf-8")
+    # Save HTML report
+    filename = f"DLENS_Spotlight_{ticker.upper()}.html"
+    filepath = REPORT_DIR / filename
 
-    # ---------------------------------------------------------------------
-    # 3. Return Vercel Public URL
-    # ---------------------------------------------------------------------
-    public_url = f"/api/reports/{file_id}"
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(final_html)
 
-    return public_url
-
-
-# For local debug (Optional)
-if __name__ == "__main__":
-    url = generate_spotlight("AAPL", 10)
-    print("Generated:", url)
+    return f"/api/reports/{filename}"
