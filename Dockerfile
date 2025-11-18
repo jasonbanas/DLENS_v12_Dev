@@ -14,5 +14,5 @@ COPY . .
 # === Expose port ===
 EXPOSE 8000
 
-# === Correct way to run ASGI wrapper for Flask ===
+# === Run ASGI app (Flask wrapped by Starlette) ===
 CMD ["uvicorn", "asgi:application", "--host", "0.0.0.0", "--port", "8000"]
