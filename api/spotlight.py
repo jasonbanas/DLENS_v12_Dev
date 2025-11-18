@@ -10,6 +10,29 @@ REPORT_DIR.mkdir(exist_ok=True)
 
 client = OpenAI()
 
+
+# ---------------------------------------------
+# Remove GPT Markdown Code Blocks (```html)
+# ---------------------------------------------
+def clean_gpt_html(text):
+    if text is None:
+        return ""
+
+    # Remove ```html or ``` at start
+    if text.startswith("```html"):
+        text = text[len("```html"):]
+
+    if text.startswith("```"):
+        text = text[len("```"):]
+
+    # Remove ending ```
+    if text.endswith("```"):
+        text = text[:-3]
+
+    return text.strip()
+
+
+
 # ---------------------------------------------
 # Fetch Real-Time Price (Yahoo Finance)
 # ---------------------------------------------
@@ -35,8 +58,9 @@ def get_live_price(ticker):
         return None, None, None, None
 
 
+
 # ---------------------------------------------
-# Generate Spotlight
+# Generate Spotlight HTML Report
 # ---------------------------------------------
 def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
 
@@ -61,9 +85,14 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
         </div>
     """
 
-    # GPT PROMPT
+    # GPT prompt
     prompt = f"""
-    Create a DLENS Spotlight report for ticker: {ticker}. Use ONLY HTML (h2, p, table, tr, td, ul, li).
+    Create a DLENS Spotlight report for ticker: {ticker}.
+    VERY IMPORTANT:
+    - Output ONLY pure HTML.
+    - NEVER use Markdown.
+    - NEVER wrap content inside ```html or ``` code blocks.
+    - Use ONLY: <h2>, <p>, <table>, <tr>, <th>, <td>, <ul>, <li>
 
     Include:
     - Company Summary
@@ -81,9 +110,11 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
         messages=[{"role": "user", "content": prompt}]
     )
 
-    gpt_html = response.choices[0].message.content
+    raw_html = response.choices[0].message.content
+    gpt_html = clean_gpt_html(raw_html)
 
-    # FINAL HTML WRAP
+
+    # FINAL HTML OUTPUT
     final_html = f"""
     <!DOCTYPE html>
     <html>
