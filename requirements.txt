@@ -8,3 +8,4 @@ openai==1.3.5
 pandas
 numpy
 yfinance
+httpx==0.24.1
