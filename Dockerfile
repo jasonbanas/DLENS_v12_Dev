@@ -4,13 +4,15 @@ FROM python:3.11-slim
 # === Set work directory ===
 WORKDIR /app
 
-# === Copy requirements and install ===
+# === Install dependencies ===
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# === Copy all project files ===
+# === Copy entire project ===
 COPY . .
 
-# === Expose port and run ===
+# === Expose port ===
 EXPOSE 8000
-CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# === Correct way to run ASGI wrapper for Flask ===
+CMD ["uvicorn", "asgi:application", "--host", "0.0.0.0", "--port", "8000"]
