@@ -1,9 +1,10 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_from_directory
 from pathlib import Path
 from spotlight import generate_spotlight
+from werkzeug.utils import safe_join
 
 app = Flask(__name__)
 
@@ -16,12 +17,12 @@ print("📌 Reports folder:", STATIC_REPORTS)
 
 @app.get("/")
 def home():
-    return send_file(BASE_DIR / "resources" / "index.html")
+    return send_from_directory(BASE_DIR / "resources", "index.html")
 
 
 @app.post("/api/spotlight")
 def api_spotlight():
-    """Main endpoint — generates a Spotlight report."""
+
     data = request.get_json()
 
     print("\n==============================")
@@ -29,13 +30,16 @@ def api_spotlight():
     print("🔥 request.get_json() →", data)
     print("==============================\n")
 
+    if not data:
+        return jsonify({"error": "invalid_json"}), 400
+
     ticker = data.get("ticker", "").strip()
     years = int(data.get("projection_years", 10))
 
     if not ticker:
         return jsonify({"error": "ticker_missing"}), 400
 
-    # Generate the report
+    # Generate report
     url = generate_spotlight(
         ticker=ticker,
         projection_years=years,
@@ -48,16 +52,24 @@ def api_spotlight():
     return jsonify({"url": url})
 
 
-
-@app.get("/api/reports/<filename>")
+# -----------------------------------------------------
+# FIXED REPORT SERVING ROUTE (100% working)
+# -----------------------------------------------------
+@app.get("/api/reports/<path:filename>")
 def serve_report(filename):
-    file_path = STATIC_REPORTS / filename
+
+    safe_path = safe_join(STATIC_REPORTS, filename)
+    file_path = Path(safe_path)
+
+    print("📄 Requested file:", file_path)
+
     if not file_path.exists():
+        print("❌ FILE NOT FOUND:", file_path)
         return "<h1>Report Not Found</h1>", 404
 
-    return send_file(file_path)
+    print("✅ Serving File OK!")
+    return send_from_directory(STATIC_REPORTS, filename)
 
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
-

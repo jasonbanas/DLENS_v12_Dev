@@ -147,7 +147,7 @@ async function generate() {
 
     const data = await response.json();
 
-    console.log("📌 FRONTEND RECEIVED:", data);
+    console.log("🌐 FRONTEND RECEIVED:", data);
 
     if (!response.ok) {
       alert("Error: " + data.error);
@@ -155,13 +155,7 @@ async function generate() {
       return;
     }
 
-    if (!data.url) {
-      alert("Server did not return a report URL.");
-      loading.style.display = "none";
-      return;
-    }
-
-    // 🔥 Auto-open generated report (WORKS ALWAYS)
+    // THIS OPENS THE REPORT
     window.open(data.url, "_blank");
 
   } catch (err) {
@@ -170,6 +164,7 @@ async function generate() {
 
   loading.style.display = "none";
 }
+
 </script>
 
 </body>

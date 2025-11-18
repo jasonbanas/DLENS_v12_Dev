@@ -19,7 +19,7 @@ def get_live_price(ticker):
         data = stock.history(period="1d")
 
         if data.empty:
-            return None, None, None
+            return None, None, None, None
 
         last_price = round(float(data["Close"].iloc[-1]), 2)
         prev_close = round(float(data["Close"].iloc[0]), 2)
@@ -43,10 +43,9 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
     # Get real-time price
     price, change, percent, timestamp = get_live_price(ticker)
 
-    trend_color = "#22c55e" if change >= 0 else "#ef4444"
-    sign = "+" if change >= 0 else "-"
+    trend_color = "#22c55e" if (change or 0) >= 0 else "#ef4444"
+    sign = "+" if (change or 0) >= 0 else "-"
 
-    # Format price section
     price_block = f"""
         <div class="price-box">
             <h2>{ticker.upper()} — ${price}</h2>
@@ -55,20 +54,18 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
             </p>
             <p class="price-updated">Updated: {timestamp}</p>
         </div>
-    """ if price else """
+    """ if price else f"""
         <div class="price-box">
             <h2>{ticker.upper()}</h2>
             <p style="color:#aaa;">Live price unavailable</p>
         </div>
     """
 
-    # -----------------------------------------
-    # GPT GENERATION
-    # -----------------------------------------
+    # GPT PROMPT
     prompt = f"""
-    Create a DLENS Spotlight report for ticker: {ticker}. 
-    Include sections:
+    Create a DLENS Spotlight report for ticker: {ticker}. Use ONLY HTML (h2, p, table, tr, td, ul, li).
 
+    Include:
     - Company Summary
     - Financial Snapshot (table)
     - DUU Score
@@ -77,9 +74,6 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
     - Highlights
     - Risks
     - Investment Verdict
-
-    Keep it factual, structured, and formatted in HTML (only <h2>, <p>, <table>, <tr>, <td>, <ul>, <li>, etc).
-    DO NOT include <html> or <body>.
     """
 
     response = client.chat.completions.create(
@@ -89,9 +83,7 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
 
     gpt_html = response.choices[0].message.content
 
-    # -----------------------------------------
-    # FINAL HTML WRAPPING
-    # -----------------------------------------
+    # FINAL HTML WRAP
     final_html = f"""
     <!DOCTYPE html>
     <html>
@@ -121,7 +113,7 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
                 border: 1px solid #30363d;
             }}
             td, th {{
-                padding: 10px;
+                padding: 8px 10px;
             }}
             .price-box {{
                 background: #161b22;
@@ -130,15 +122,10 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
                 text-align: center;
                 margin-bottom: 30px;
                 border: 1px solid #30363d;
-                box-shadow: 0 0 20px rgba(0,0,0,0.4);
-            }}
-            .price-updated {{
-                color: #aaa;
-                font-size: 12px;
             }}
             .chart-box {{
-                margin: 25px auto;
-                text-align: center;
+                margin-top: 20px;
+                margin-bottom: 30px;
             }}
         </style>
     </head>
@@ -149,12 +136,9 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
         {price_block}
 
         <div class="chart-box">
-            <!-- TradingView Chart -->
             <iframe 
                 src="https://s.tradingview.com/widgetembed/?symbol={ticker.upper()}&interval=60&theme=dark&style=1"
-                width="100%"
-                height="420"
-                frameborder="0">
+                width="100%" height="420" frameborder="0">
             </iframe>
         </div>
 
@@ -164,7 +148,6 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
     </html>
     """
 
-    # Save HTML report
     filename = f"DLENS_Spotlight_{ticker.upper()}.html"
     filepath = REPORT_DIR / filename
 
