@@ -2,5 +2,9 @@ flask
 starlette
 asgiref
 uvicorn
+werkzeug
 python-dotenv
 openai==1.3.5
+pandas
+numpy
+yfinance
