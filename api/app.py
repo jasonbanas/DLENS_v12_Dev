@@ -4,7 +4,6 @@ load_dotenv()
 from flask import Flask, request, jsonify, send_from_directory
 from pathlib import Path
 from api.spotlight import generate_spotlight
-
 from werkzeug.utils import safe_join
 
 app = Flask(__name__)
