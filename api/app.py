@@ -19,25 +19,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPORT_DIR = os.path.join(BASE_DIR, "static_reports")
 
 # -------------------------------------------------------------------
-#  ROOT
+#  ROOT → DEFAULT TO SPOTLIGHT UI
 # -------------------------------------------------------------------
 @app.route("/")
 def home():
-    # Load spotlight app directly as homepage
-    return render_template("spotlight.html")
-
+    return render_template("spotlight.html")     # <<< THIS FIXES YOUR ISSUE
 
 # -------------------------------------------------------------------
 #  FRONTEND PAGES
 # -------------------------------------------------------------------
 @app.route("/spotlight")
 def spotlight_page():
-    """Loads the Spotlight frontend page."""
     return render_template("spotlight.html")
 
 @app.route("/hunt")
 def hunt_page():
-    """Loads the Disruptor Hunt frontend page."""
     return render_template("hunt.html")
 
 # -------------------------------------------------------------------
@@ -45,11 +41,7 @@ def hunt_page():
 # -------------------------------------------------------------------
 @app.route("/api/spotlight", methods=["POST"])
 def api_generate_spotlight():
-    """
-    Generates a DLENS v12 Spotlight report using OpenAI GPT.
-    This only returns SAMPLE mock content for now until
-    connected with the full GPT prompt engine.
-    """
+
     data = request.get_json()
     ticker = data.get("ticker", "").upper().strip()
     horizon = int(data.get("horizon", 6))
@@ -57,11 +49,9 @@ def api_generate_spotlight():
     if not ticker:
         return jsonify({"error": "Ticker is required"}), 400
 
-    # Fake response for now (replace with GPT later)
     mock_report_name = f"DLENS_Spotlight_{ticker}.html"
     mock_path = os.path.join(REPORT_DIR, mock_report_name)
 
-    # If no report exists, return 404
     if not os.path.exists(mock_path):
         return jsonify({
             "status": "error",
@@ -78,17 +68,13 @@ def api_generate_spotlight():
 # -------------------------------------------------------------------
 @app.route("/api/hunt", methods=["POST"])
 def api_disruptor_hunt():
-    """
-    Mock Disruptor Hunt engine.
-    Replace with real hunt_engine.py logic later.
-    """
+
     data = request.get_json()
     query = data.get("query", "").strip()
 
     if not query:
         return jsonify({"error": "Query is required"}), 400
 
-    # Sample output
     return jsonify({
         "status": "success",
         "results": [
@@ -112,13 +98,11 @@ def api_disruptor_hunt():
     })
 
 # -------------------------------------------------------------------
-#  SERVE STATIC REPORT FILES
+#  SERVE STATIC SPOTLIGHT HTML FILES
 # -------------------------------------------------------------------
 @app.route("/api/reports/<path:filename>")
 def serve_report(filename):
-    """
-    Serves Spotlight HTML from static_reports folder.
-    """
+
     file_path = os.path.join(REPORT_DIR, filename)
 
     if not os.path.exists(file_path):
