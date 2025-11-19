@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DLENS Disruptor Hunt</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f1624;
+      color: #e5e7eb;
+    }
+
+    .header {
+      width: 100%;
+      padding: 50px 0;
+      background: linear-gradient(to right, #0053ff, #0570ff);
+      text-align: center;
+      color: white;
+      font-size: 38px;
+      font-weight: bold;
+    }
+
+    .subheader {
+      text-align: center;
+      font-size: 16px;
+      margin-top: -8px;
+      color: #dbeafe;
+    }
+
+    .search-box-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .search-card {
+      background: #111827;
+      padding: 30px;
+      width: 700px;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #e5e7eb;
+      outline: none;
+    }
+
+    button {
+      margin-top: 16px;
+      width: 100%;
+      padding: 14px;
+      background: #0053ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #003fcb; }
+
+    .result-card {
+      max-width: 700px;
+      width: 100%;
+      margin: 25px auto;
+      background: #111827;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .ticker {
+      font-size: 26px;
+      font-weight: bold;
+      color: #60a5fa;
+    }
+
+    .open-btn {
+      margin-top: 14px;
+      background: #2563eb;
+      padding: 10px 18px;
+      border-radius: 8px;
+      display: inline-block;
+      color: white;
+      cursor: pointer;
+    }
+
+    .open-btn:hover {
+      background: #1e3fa7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">DLENS Disruptor Hunt</div>
+  <div class="subheader">Real-time AI ranking of high-signal disruptive companies.</div>
+
+  <div class="search-box-wrapper">
+    <div class="search-card">
+      <input id="query" placeholder="Search by theme: AI, EV, Robotics, Cloud…" />
+      <button onclick="runHunt()">🚀 Run Disruptor Hunt</button>
+    </div>
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    async function runHunt() {
+      const q = document.getElementById("query").value.trim();
+      if (!q) { alert("Enter a theme."); return; }
+
+      const res = await fetch("/api/hunt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: q })
+      });
+
+      const data = await res.json();
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "";
+
+      data.forEach(item => {
+        const ticker = item.ticker.toUpperCase();
+
+        const card = document.createElement("div");
+        card.className = "result-card";
+
+        card.innerHTML = `
+          <div class="ticker">${ticker}</div>
+          <div>${item.name}</div>
+          <h3>DUU Score: ${item.duu}: 10</h3>
+          <p>${item.summary}</p>
+          <div class="open-btn">Open Spotlight</div>
+        `;
+
+        card.querySelector(".open-btn").onclick = () => {
+          window.location.href =
+            "/api/static/DLENS_Spotlight_" + ticker + ".html";
+        };
+
+        resultsDiv.appendChild(card);
+      });
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+[
+  { "ticker": "AAPL", "name": "Apple Inc.", "sector": "AI/Devices" },
+  { "ticker": "MSFT", "name": "Microsoft Corporation", "sector": "AI/Cloud" },
+  { "ticker": "TSLA", "name": "Tesla Inc.", "sector": "Autonomous/EV" },
+  { "ticker": "NVDA", "name": "NVIDIA Corporation", "sector": "AI/Chips" },
+  { "ticker": "META", "name": "Meta Platforms", "sector": "AI/VR" },
+  { "ticker": "GOOG", "name": "Alphabet Inc.", "sector": "AI/Search" },
+  { "ticker": "AMZN", "name": "Amazon.com Inc.", "sector": "AI/Cloud" },
+  { "ticker": "BYD", "name": "BYD Company Ltd.", "sector": "EV/Battery" }
+]

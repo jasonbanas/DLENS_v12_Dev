@@ -1,41 +1,28 @@
-from flask import Flask, request, jsonify, send_file
 from pathlib import Path
-import os
 
-app = Flask(__name__)
+# Base reports folder (api/reports)
+BASE_DIR = Path(__file__).resolve().parent.parent
+REPORTS_DIR = BASE_DIR / "reports"
 
-API_DIR = Path(__file__).resolve().parent
-RESOURCES = API_DIR / "resources"
-REPORTS = API_DIR / "reports"
-REPORTS.mkdir(exist_ok=True)
+# Ensure folder exists
+REPORTS_DIR.mkdir(exist_ok=True)
 
-@app.get("/api/ping")
-def ping():
-    return jsonify({"ok": True})
 
-@app.get("/")
-def home():
-    index = RESOURCES / "index.html"
-    return send_file(index)
+def save_report(user_id: str, ticker: str, html: str):
+    """
+    Saves a spotlight HTML file into /api/reports/
+    Returns: (file_path, url)
+    """
+    # filename pattern
+    filename = f"DLENS_Spotlight_{ticker}.html"
 
-@app.post("/api/spotlight")
-def spotlight():
-    data = request.get_json()
-    ticker = data.get("ticker", "UNKNOWN")
-    years = data.get("years", 10)
+    # full path
+    file_path = REPORTS_DIR / filename
 
-    # temporary HTML output
-    html = f"<html><body><h1>Report for {ticker}</h1><p>Years: {years}</p></body></html>"
+    # write HTML file
+    file_path.write_text(html, encoding="utf-8")
 
-    out = REPORTS / f"{ticker}.html"
-    out.write_text(html, encoding="utf-8")
+    # API URL for serving the file
+    url = f"/api/reports/{filename}"
 
-    return jsonify({"url": f"/api/reports/{ticker}.html"})
-
-@app.get("/api/reports/<filename>")
-def reports(filename):
-    fp = REPORTS / filename
-    return send_file(fp)
-
-if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    return url, str(file_path)
