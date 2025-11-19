@@ -10,32 +10,9 @@ REPORT_DIR.mkdir(exist_ok=True)
 
 client = OpenAI()
 
-
-# ---------------------------------------------
-# Remove GPT Markdown Code Blocks (```html)
-# ---------------------------------------------
-def clean_gpt_html(text):
-    if text is None:
-        return ""
-
-    # Remove ```html or ``` at start
-    if text.startswith("```html"):
-        text = text[len("```html"):]
-
-    if text.startswith("```"):
-        text = text[len("```"):]
-
-    # Remove ending ```
-    if text.endswith("```"):
-        text = text[:-3]
-
-    return text.strip()
-
-
-
-# ---------------------------------------------
-# Fetch Real-Time Price (Yahoo Finance)
-# ---------------------------------------------
+# -----------------------------
+# Fetch Real Price
+# -----------------------------
 def get_live_price(ticker):
     try:
         stock = yf.Ticker(ticker)
@@ -46,143 +23,140 @@ def get_live_price(ticker):
 
         last_price = round(float(data["Close"].iloc[-1]), 2)
         prev_close = round(float(data["Close"].iloc[0]), 2)
-
         change = round(last_price - prev_close, 2)
-        percent = round((change / prev_close) * 100, 2) if prev_close != 0 else 0
-
-        timestamp = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+        percent = round((change / prev_close) * 100, 2)
+        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 
         return last_price, change, percent, timestamp
-
-    except Exception:
+    except:
         return None, None, None, None
 
 
+# -----------------------------
+# Generate Spotlight
+# -----------------------------
+def generate_spotlight(ticker, horizon, user_id=None, email_opt_in=False):
 
-# ---------------------------------------------
-# Generate Spotlight HTML Report
-# ---------------------------------------------
-def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
-
-    # Get real-time price
+    # Get live price
     price, change, percent, timestamp = get_live_price(ticker)
+    tv_symbol = ticker.upper()
 
-    trend_color = "#22c55e" if (change or 0) >= 0 else "#ef4444"
-    sign = "+" if (change or 0) >= 0 else "-"
-
-    price_block = f"""
-        <div class="price-box">
-            <h2>{ticker.upper()} — ${price}</h2>
-            <p style="color:{trend_color}; font-size:18px;">
-                {sign}{abs(change)} ({sign}{abs(percent)}%)
-            </p>
-            <p class="price-updated">Updated: {timestamp}</p>
-        </div>
-    """ if price else f"""
-        <div class="price-box">
-            <h2>{ticker.upper()}</h2>
-            <p style="color:#aaa;">Live price unavailable</p>
-        </div>
-    """
-
-    # GPT prompt
+    # Ask GPT for structured content
     prompt = f"""
-    Create a DLENS Spotlight report for ticker: {ticker}.
-    VERY IMPORTANT:
-    - Output ONLY pure HTML.
-    - NEVER use Markdown.
-    - NEVER wrap content inside ```html or ``` code blocks.
-    - Use ONLY: <h2>, <p>, <table>, <tr>, <th>, <td>, <ul>, <li>
+You are DLENS v12 Spotlight engine.
+Return ONLY valid JSON with the following fields:
 
-    Include:
-    - Company Summary
-    - Financial Snapshot (table)
-    - DUU Score
-    - CSP Anchors
-    - {projection_years}-Year Projection Table
-    - Highlights
-    - Risks
-    - Investment Verdict
-    """
+{{
+  "company": "",
+  "summary": "",
+  "duu_expanded": "",
+  "duu_score": "",
+  "duu_price": "",
+  "csp_multiple": "",
+  "csp": "",
+  "upside": "",
+  "duu_probability": "",
+  "ddi_label": "",
+  "ddi_vectors": "",
+  "what_is": "",
+  "why_now": ["", "", ""],
+  "xd_e": "",
+  "xd_s": "",
+  "xd_dep": "",
+  "xd_mix": "",
+  "xd_break": "",
+  "fep": "",
+  "fvu": "",
+  "frogfree": "",
+  "peer_table": "<table>...</table>",
+  "truth_summary": "",
+  "truth_items": ["","",""],
+  "kpis": ["","",""],
+  "milestones": ["","",""],
+  "risks": ["","",""],
+  "change_view": ["","",""],
+  "conclusion": "",
+  "paradigm": "",
+  "ddi_details": "",
+  "pillars": "",
+  "checklist": ["","",""]
+}}
+
+Content must be realistic and consistent with DLENS v12 Gold.
+Ticker: {ticker}
+Horizon: {horizon}
+"""
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}]
     )
 
-    raw_html = response.choices[0].message.content
-    gpt_html = clean_gpt_html(raw_html)
+    import json
+    payload = json.loads(response.choices[0].message.content)
 
+    # -----------------------------
+    # Replace into template
+    # -----------------------------
 
-    # FINAL HTML OUTPUT
-    final_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>DLENS Spotlight – {ticker}</title>
-        <style>
-            body {{
-                background: #0d1117;
-                color: white;
-                font-family: Arial, sans-serif;
-                padding: 30px;
-            }}
-            h1 {{
-                color: #58a6ff;
-                text-align: center;
-            }}
-            h2 {{
-                color: #58a6ff;
-                margin-top: 40px;
-            }}
-            table {{
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 15px;
-            }}
-            table, th, td {{
-                border: 1px solid #30363d;
-            }}
-            td, th {{
-                padding: 8px 10px;
-            }}
-            .price-box {{
-                background: #161b22;
-                padding: 20px;
-                border-radius: 10px;
-                text-align: center;
-                margin-bottom: 30px;
-                border: 1px solid #30363d;
-            }}
-            .chart-box {{
-                margin-top: 20px;
-                margin-bottom: 30px;
-            }}
-        </style>
-    </head>
-    <body>
+    html_template = (BASE_DIR / "templates" / "spotlight.html").read_text(encoding="utf-8")
 
-        <h1>DLENS Spotlight Report — {ticker.upper()}</h1>
+    final = html_template \
+        .replace("{{ company }}", payload["company"]) \
+        .replace("{{ ticker }}", ticker.upper()) \
+        .replace("{{ horizon }}", str(horizon)) \
+        .replace("{{ date }}", timestamp or "") \
+        .replace("{{ standard_id }}", f"STD-{ticker.upper()}") \
+        .replace("{{ report_id }}", f"RPT-{datetime.utcnow().strftime('%Y%m%d%H%M')}") \
+        .replace("{{ summary }}", payload["summary"]) \
+        .replace("{{ duu_expanded }}", payload["duu_expanded"]) \
+        .replace("{{ duu_score }}", payload["duu_score"]) \
+        .replace("{{ duu_price }}", payload["duu_price"]) \
+        .replace("{{ csp_multiple }}", payload["csp_multiple"]) \
+        .replace("{{ csp }}", payload["csp"]) \
+        .replace("{{ upside }}", payload["upside"]) \
+        .replace("{{ duu_probability }}", payload["duu_probability"]) \
+        .replace("{{ ddi_label }}", payload["ddi_label"]) \
+        .replace("{{ ddi_vectors }}", payload["ddi_vectors"]) \
+        .replace("{{ what_is }}", payload["what_is"]) \
+        .replace("{{ xd_e }}", payload["xd_e"]) \
+        .replace("{{ xd_s }}", payload["xd_s"]) \
+        .replace("{{ xd_dep }}", payload["xd_dep"]) \
+        .replace("{{ xd_mix }}", payload["xd_mix"]) \
+        .replace("{{ xd_break }}", payload["xd_break"]) \
+        .replace("{{ fep }}", payload["fep"]) \
+        .replace("{{ fvu }}", payload["fvu"]) \
+        .replace("{{ frogfree }}", payload["frogfree"]) \
+        .replace("{{ peer_table }}", payload["peer_table"]) \
+        .replace("{{ truth_summary }}", payload["truth_summary"]) \
+        .replace("{{ conclusion }}", payload["conclusion"]) \
+        .replace("{{ paradigm }}", payload["paradigm"]) \
+        .replace("{{ ddi_details }}", payload["ddi_details"]) \
+        .replace("{{ pillars }}", payload["pillars"]) \
+        .replace("{{ tv_symbol }}", tv_symbol)
 
-        {price_block}
+    # Handle arrays
+    def list_to_html(arr):
+        return "".join(f"<li>{x}</li>" for x in arr)
 
-        <div class="chart-box">
-            <iframe 
-                src="https://s.tradingview.com/widgetembed/?symbol={ticker.upper()}&interval=60&theme=dark&style=1"
-                width="100%" height="420" frameborder="0">
-            </iframe>
-        </div>
+    final = final \
+        .replace("{% for item in why_now %}", "") \
+        .replace("{% endfor %}", "") \
+        .replace("{{ why_now }}", list_to_html(payload["why_now"])) \
+        .replace("{{ truth_items }}", list_to_html(payload["truth_items"])) \
+        .replace("{{ kpis }}", list_to_html(payload["kpis"])) \
+        .replace("{{ milestones }}", list_to_html(payload["milestones"])) \
+        .replace("{{ risks }}", list_to_html(payload["risks"])) \
+        .replace("{{ change_view }}", list_to_html(payload["change_view"])) \
+        .replace("{{ checklist }}", list_to_html(payload["checklist"]))
 
-        {gpt_html}
-
-    </body>
-    </html>
-    """
-
+    # -----------------------------
+    # Save report
+    # -----------------------------
     filename = f"DLENS_Spotlight_{ticker.upper()}.html"
     filepath = REPORT_DIR / filename
 
     with open(filepath, "w", encoding="utf-8") as f:
-        f.write(final_html)
+        f.write(final)
 
     return f"/api/reports/{filename}"

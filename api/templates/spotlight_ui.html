@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DLENS Spotlight Generator</title>
+    <style>
+        body {
+            background: #f8fafc;
+            font-family: Arial, sans-serif;
+            padding: 40px;
+        }
+        .wrap {
+            max-width: 600px;
+            margin: auto;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+        }
+        h1 {
+            text-align: center;
+            color: #0f172a;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button {
+            width: 100%;
+            background: #0ea5e9;
+            border: none;
+            padding: 14px;
+            color: white;
+            font-size: 18px;
+            margin-top: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        button:hover { background: #0284c7; }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <h1>DLENS Spotlight v12</h1>
+
+    <input id="ticker" placeholder="Enter ticker (example: TSLA)">
+    <select id="horizon">
+        <option value="6">6-Year Horizon</option>
+        <option value="10" selected>10-Year Horizon</option>
+    </select>
+
+    <button onclick="generate()">Generate Spotlight</button>
+
+    <p id="status"></p>
+</div>
+
+
+<script>
+function generate() {
+    const ticker = document.getElementById("ticker").value;
+    const horizon = document.getElementById("horizon").value;
+
+    document.getElementById("status").innerHTML = "Generating report…";
+
+    fetch("/api/spotlight", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ ticker, horizon })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === "success") {
+            window.location.href = data.report_url;
+        } else {
+            document.getElementById("status").innerHTML = data.error;
+        }
+    });
+}
+</script>
+
+</body>
+</html>
