@@ -23,7 +23,9 @@ REPORT_DIR = os.path.join(BASE_DIR, "static_reports")
 # -------------------------------------------------------------------
 @app.route("/")
 def home():
-    return "<h2>DLENS Spotlight v12 API Running</h2>"
+    # Load spotlight app directly as homepage
+    return render_template("spotlight.html")
+
 
 # -------------------------------------------------------------------
 #  FRONTEND PAGES
