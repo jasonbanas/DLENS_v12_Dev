@@ -1,66 +1,66 @@
+import os
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from spotlight import generate_spotlight
-import os
 
-app = Flask(
-    __name__,
-    template_folder="templates",
-    static_folder="static_reports"  # Serve generated reports
-)
+app = Flask(__name__, template_folder="templates")
 
-# ===========================
-# HOME PAGE (UI)
-# ===========================
+
+# ============================
+# HOME PAGE (API STATUS)
+# ============================
 @app.route("/")
-def index():
-    return render_template("spotlight_ui.html")
+def home():
+    return "DLENS v12 Spotlight API Running"
 
 
-# ===========================
-# OPTIONAL UI ROUTE
-# ===========================
+# ============================
+# SPOTLIGHT UI PAGE
+# ============================
 @app.route("/spotlight")
-def spotlight_page():
+def ui():
     return render_template("spotlight_ui.html")
 
 
-# ===========================
-# API ENDPOINT FOR SPOTLIGHT
-# ===========================
+# ============================
+# API: GENERATE SPOTLIGHT
+# ============================
 @app.route("/api/spotlight", methods=["POST"])
 def api_spotlight():
-    data = request.get_json()
-
-    ticker = data.get("ticker")
-    years = data.get("years")
-
-    if not ticker:
-        return jsonify({"error": "Ticker is required"}), 400
-
     try:
-        years = int(years)
-    except:
-        years = 1
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No JSON received"}), 400
 
-    # Generate the report
-    url = generate_spotlight(ticker, years)
+        ticker = data.get("ticker", "").upper().strip()
+        horizon = int(data.get("horizon", 1))
 
-    return jsonify({"url": url})
+        if ticker == "":
+            return jsonify({"error": "Ticker is required"}), 400
+
+        # Call generator
+        url = generate_spotlight(
+            ticker=ticker,
+            projection_years=horizon,
+            user_id="guest",
+            email_opt_in=False
+        )
+
+        return jsonify({"url": url}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
-# ===========================
-# SERVE GENERATED REPORT FILES
-# ===========================
+# ============================
+# SERVE GENERATED HTML REPORTS
+# ============================
 @app.route("/api/reports/<path:filename>")
 def serve_report(filename):
-    reports_dir = os.path.join(os.getcwd(), "api/static_reports")
-    return send_from_directory(reports_dir, filename)
+    return send_from_directory("static_reports", filename)
 
 
-# ===========================
-# RUN LOCAL DEV
-# ===========================
+# ============================
+# RENDER ENTRY POINT
+# ============================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    print(f"🔥 DLENS Spotlight running on port {port}")
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

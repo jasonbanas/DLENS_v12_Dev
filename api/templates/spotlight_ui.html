@@ -1,102 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DLENS Spotlight Generator</title>
+    <title>DLENS Spotlight v12</title>
     <style>
-        body {
-            background: #f8fafc;
-            font-family: Arial, sans-serif;
-            padding: 40px;
-        }
-        .wrap {
-            max-width: 600px;
-            margin: auto;
-            padding: 25px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.07);
-        }
-        h1 {
-            text-align: center;
-            color: #0f172a;
+        body { background: #f7f7f7; font-family: Arial; }
+        .box {
+            background:white; width:480px; margin:60px auto;
+            padding:30px; border-radius:16px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.1);
+            text-align:center;
         }
         input, select {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            margin-top: 10px;
+            width:100%; padding:12px; margin-top:12px;
+            border-radius:8px; border:1px solid #ccc;
         }
         button {
-            width: 100%;
-            background: #0ea5e9;
-            border: none;
-            padding: 14px;
-            color: white;
-            font-size: 18px;
-            margin-top: 20px;
-            border-radius: 10px;
-            cursor: pointer;
+            width:100%; padding:14px; margin-top:20px;
+            background:#0094ff; color:white; border:none;
+            border-radius:8px; cursor:pointer; font-size:16px;
         }
-        button:hover { background: #0284c7; }
     </style>
 </head>
+
 <body>
+    <div class="box">
+        <h2>DLENS Spotlight v12</h2>
 
-<div class="wrap">
-    <h1>DLENS Spotlight v12</h1>
+        <input id="ticker" placeholder="Ticker (e.g. AAPL)" />
 
-    <input id="ticker" placeholder="Enter ticker (example: TSLA)">
-    <select id="horizon">
-        <option value="6">6-Year Horizon</option>
-        <option value="10" selected>10-Year Horizon</option>
-    </select>
+        <select id="horizon">
+            <option value="1">1-Year Horizon</option>
+            <option value="5">5-Year Horizon</option>
+            <option value="10">10-Year Horizon</option>
+        </select>
 
-    <button onclick="generate()">Generate Spotlight</button>
+        <button id="generateButton">Generate Spotlight</button>
 
-    <p id="status"></p>
-</div>
-
+        <p id="status" style="margin-top:20px;color:#555;"></p>
+    </div>
 
 <script>
-document.getElementById("spotlightForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const ticker = document.getElementById("ticker").value;
+document.getElementById("generateButton").onclick = async () => {
+    const ticker = document.getElementById("ticker").value.trim();
     const horizon = document.getElementById("horizon").value;
+
+    if (!ticker) {
+        alert("Enter a ticker symbol");
+        return;
+    }
 
     document.getElementById("status").innerText = "Generating report...";
 
-    try {
-        const response = await fetch("/api/spotlight", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"   // ← FIXED
-            },
-            body: JSON.stringify({
-                ticker: ticker,
-                horizon: horizon
-            })
-        });
+    const response = await fetch("/api/spotlight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            ticker: ticker,
+            horizon: horizon
+        })
+    });
 
-        if (!response.ok) {
-            document.getElementById("status").innerText = "Error generating report.";
-            return;
-        }
+    const result = await response.json();
 
-        const data = await response.json();
-
-        if (data.url) {
-            window.location.href = data.url;  // auto-open report
-        } else {
-            document.getElementById("status").innerText = "Report generated, but no URL returned.";
-        }
-
-    } catch (err) {
-        document.getElementById("status").innerText = "Request failed.";
+    if (result.url) {
+        window.location.href = result.url;
+    } else {
+        document.getElementById("status").innerText = "Error: " + result.error;
     }
-});
+};
 </script>
-
-
 </body>
 </html>
