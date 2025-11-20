@@ -1,37 +1,77 @@
-from flask import Flask, render_template, request, jsonify
-from spotlight import generate_spotlight
 import os
+from flask import Flask, request, jsonify, render_template, send_from_directory
+from dotenv import load_dotenv
+from spotlight import generate_spotlight
 
-app = Flask(__name__, template_folder="templates")
+load_dotenv()
 
+app = Flask(
+    __name__,
+    template_folder="templates",
+    static_folder="static_reports"
+)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPORT_DIR = os.path.join(BASE_DIR, "static_reports")
+
+
+# ------------------------------------------
+# HOME
+# ------------------------------------------
 @app.route("/")
 def home():
-    return render_template("spotlight.html")
+    return "<h2>DLENS v12 Spotlight API Running</h2>"
 
+
+# ------------------------------------------
+# UI PAGES
+# ------------------------------------------
 @app.route("/spotlight")
-def spotlight_page():
-    return render_template("spotlight.html")
+def spotlight_ui():
+    return render_template("spotlight_ui.html")
 
+
+@app.route("/hunt")
+def hunt_ui():
+    return render_template("hunt.html")
+
+
+# ------------------------------------------
+# API — Generate Spotlight
+# ------------------------------------------
 @app.route("/api/spotlight", methods=["POST"])
-def api_spotlight():
-    try:
-        ticker = request.form.get("ticker")
-        horizon = request.form.get("horizon", "3")
-        user_id = "render_user"
-        email_opt_in = False
+def api_generate_spotlight():
+    data = request.get_json()
+    ticker = data.get("ticker", "").upper().strip()
+    horizon = int(data.get("horizon", 1))
 
-        file_url = generate_spotlight(ticker, horizon, user_id, email_opt_in)
-        return jsonify({"success": True, "url": file_url})
+    if not ticker:
+        return jsonify({"error": "Ticker symbol is required"}), 400
 
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+    # 🔥 Call your REAL spotlight generator
+    report_url = generate_spotlight(ticker, horizon)
+
+    return jsonify({
+        "status": "success",
+        "message": "Spotlight generated",
+        "report_url": report_url
+    })
 
 
-# STATIC REPORT FILE SERVER
+# ------------------------------------------
+# Serve generated report files
+# ------------------------------------------
 @app.route("/api/reports/<path:filename>")
 def serve_report(filename):
-    return app.send_static_file(f"reports/{filename}")
+    file_path = os.path.join(REPORT_DIR, filename)
+    if not os.path.exists(file_path):
+        return "<h1>Report Not Found</h1>", 404
+
+    return send_from_directory(REPORT_DIR, filename)
 
 
+# ------------------------------------------
+# RUN SERVER
+# ------------------------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
