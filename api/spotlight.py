@@ -164,4 +164,5 @@ Return ONLY clean HTML.
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(final_html)
 
-    return f"/api/reports/{filename}"
+    return f"/api/reports/{filename}"  
+
