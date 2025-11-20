@@ -1,247 +1,73 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DLENS Spotlight — {{ company }} ({{ ticker }}) — v12 Gold</title>
-
+<title>DLENS v12 Spotlight Generator</title>
 <style>
-:root{--fg:#0f172a;--muted:#334155;--accent:#0ea5e9;--bg:#ffffff;--light:#f8fafc;--border:#e2e8f0}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:16px/1.58 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-.wrap{max-width:1024px;margin:36px auto;padding:22px}
-h1{font-size:28px;margin:0 0 8px}
-.section{margin:26px 0}
-.section h2{color:#0b5cab;font-size:20px;margin:0 0 8px}
-.summary{background:#f8fafc;padding:12px 14px;border-radius:12px;margin:8px 0}
-table{width:100%;border-collapse:collapse;margin:8px 0}
-th,td{border:1px solid var(--border);padding:10px;vertical-align:top}
-th{background:#f1f5f9;text-align:left}
-.meta p{margin:4px 0;color:#334155}
-.id{font-weight:600;color:#475569}
-.badge{display:inline-block;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;padding:2px 8px;border-radius:999px;font-size:12px;margin-left:6px}
-.chart-block{margin:12px 0 6px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.tvwrap{height:420px}
-.foot{margin-top:26px;font-size:12px;color:#64748b}
-ul{margin:8px 0 8px 18px}
-li{margin:4px 0}
-.mono{font-family: ui-monospace, Menlo, Consolas, monospace}
-.kv{display:grid;grid-template-columns:240px 1fr;gap:8px 14px}
-.kv div{padding:6px 0;border-bottom:1px dashed var(--border)}
-.kv .key{color:#475569}
-.pill{display:inline-block;border:1px solid var(--border);background:#ecfeff;color:#064e3b;border-color:#a7f3d0;border-radius:999px;padding:2px 8px;font-size:12px;margin-right:6px}
-.note{font-size:12px;color:#64748b}
-.small{font-size:13px;color:#64748b}
+body { 
+    font-family: Arial; 
+    padding: 40px; 
+    background: #ffffff;
+    color: #0f172a;
+    max-width: 700px;
+    margin: auto;
+}
+input, select {
+    padding: 12px; 
+    font-size: 16px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+button {
+    padding: 14px 20px;
+    background: #0b5cab;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+button:hover {
+    background: #084b8a;
+}
 </style>
 </head>
-
 <body>
-<div class="wrap">
 
-  <h1>DLENS Disruptor Spotlight – <strong>v12 Gold</strong> <span class="badge">HTML</span></h1>
+<h1>📊 DLENS v12 Spotlight Generator</h1>
 
-  <div class="meta">
-    <p><strong>Company:</strong> {{ company }}</p>
-    <p><strong>Ticker:</strong> {{ ticker }}</p>
-    <p><strong>Horizon:</strong> {{ horizon }} Years</p>
-    <p><strong>Date:</strong> {{ date }}</p>
-    <p class="id"><strong>Standard ID:</strong> {{ standard_id }} • 
-       <strong>Report ID:</strong> {{ report_id }}</p>
-  </div>
+<form method="POST" action="/api/spotlight" id="spotlightForm">
+    <label><strong>Ticker Symbol</strong></label>
+    <input name="ticker" placeholder="AAPL" required>
 
-  <!-- TradingView Widget -->
-  <div class="chart-block">
-    <div class="tvwrap">
-      <div class="tradingview-widget-container">
-        <div id="tv_chart"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-        <script type="text/javascript">
-          new TradingView.widget({
-            "width": "100%",
-            "height": 420,
-            "symbol": "{{ tv_symbol }}",
-            "interval": "D",
-            "range": "12M",
-            "style": "3",
-            "theme": "light",
-            "locale": "en",
-            "hide_top_toolbar": false,
-            "hide_legend": false,
-            "save_image": false,
-            "withdateranges": true,
-            "allow_symbol_change": false,
-            "container_id": "tv_chart"
-          });
-        </script>
-      </div>
-    </div>
-  </div>
+    <label><strong>Projection Years</strong></label>
+    <select name="horizon">
+        <option value="1">1 Year</option>
+        <option value="3">3 Years</option>
+        <option value="5">5 Years</option>
+    </select>
 
-  <!-- Short Summary -->
-  <div class="section summary">
-    <strong>Short Summary (plain language)</strong>
-    {{ summary | safe }}
-  </div>
+    <button type="submit">Generate Spotlight Report</button>
+</form>
 
-  <!-- DUU + DDI -->
-  <div class="section">
-    <h2>1) Disruption Lens (DUU) + Degree (DDI)</h2>
-    <div class="summary">
-      <strong>Expanded Summary:</strong>
-      {{ duu_expanded | safe }}
-    </div>
-    <p><strong>DUU Score:</strong> <span class="mono">{{ duu_score }}</span>
-       → <strong>Most-Likely Price ({{ horizon }}y):</strong>
-       <span class="mono">{{ duu_price }}</span>
-       (= <span class="mono">{{ csp_multiple }}</span> × CSP {{ csp }} ≈ 
-       <span class="mono">{{ upside }}</span>)
-       • <strong>Probability:</strong> <span class="mono">{{ duu_probability }}</span>
-    </p>
+<script>
+document.getElementById("spotlightForm").onsubmit = async function(e) {
+    e.preventDefault();
 
-    <p><strong>DDI:</strong> <span class="pill">{{ ddi_label }}</span>
-       • <strong>Vectors flipped:</strong> {{ ddi_vectors }}
-    </p>
+    const formData = new FormData(e.target);
 
-    <p class="note">CSP {{ csp }} • Anchoring: test value — double-check before publishing.</p>
-  </div>
+    const res = await fetch("/api/spotlight", {
+        method: "POST",
+        body: formData
+    });
 
-  <!-- Section 2 -->
-  <div class="section">
-    <h2>2) What is the company?</h2>
-    <div class="summary">{{ what_is | safe }}</div>
-  </div>
+    const json = await res.json();
 
-  <!-- Section 3 -->
-  <div class="section">
-    <h2>3) Why now?</h2>
-    <ul>
-      {% for item in why_now %}
-      <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+    if (json.success) {
+        window.location.href = json.url;
+    } else {
+        alert("Error: " + json.error);
+    }
+}
+</script>
 
-  <!-- Feasibility -->
-  <div class="section">
-    <h2>4) Feasibility vs Dependency (XDLens)</h2>
-    <div class="summary">
-      <p><strong>XDLens-E:</strong> {{ xd_e }}</p>
-      <p><strong>XDLens-S:</strong> {{ xd_s }}</p>
-      <p><strong>Science Dependency:</strong> <span class="mono">{{ xd_dep }}</span>
-        • Mix: <span class="mono">{{ xd_mix }}</span>
-        • Breakthroughs required? <strong>{{ xd_break }}</strong>
-      </p>
-    </div>
-  </div>
-
-  <!-- FEP & FVU -->
-  <div class="section">
-    <h2>5) FEP & FVU</h2>
-    <div class="summary">
-      <strong>FEP:</strong> {{ fep }} • <strong>FVU:</strong> {{ fvu }}
-    </div>
-    <p><strong>Frogfree:</strong> <span class="mono">{{ frogfree }}</span></p>
-  </div>
-
-  <!-- Peer table -->
-  <div class="section">
-    <h2>6) Peer Comparison — STRICT TABLE</h2>
-    {{ peer_table | safe }}
-  </div>
-
-  <!-- Truth Audit -->
-  <div class="section">
-    <h2>7) Truth Audit — HARD FORMAT</h2>
-    <div class="summary"><strong>Summary:</strong> {{ truth_summary | safe }}</div>
-    <ul>
-      {% for item in truth_items %}
-      <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <!-- KPIs -->
-  <div class="section">
-    <h2>8) Metrics to Watch (KPIs)</h2>
-    <ul>
-      {% for item in kpis %}
-      <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <!-- Milestones -->
-  <div class="section">
-    <h2>9) Milestones</h2>
-    <ul>
-      {% for item in milestones %}
-      <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <!-- Risks -->
-  <div class="section">
-    <h2>10) Risks & Watch-outs</h2>
-    <ul>
-      {% for item in risks %}
-      <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <!-- Change the View -->
-  <div class="section">
-    <h2>11) What would change the view?</h2>
-    <ul>
-      {% for item in change_view %}
-      <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <!-- Conclusion -->
-  <div class="section">
-    <h2>12) Decision-Ready Conclusion</h2>
-    <div class="summary">{{ conclusion | safe }}</div>
-    <p><strong>Disruption Lens (DUU):</strong> <span class="mono">{{ duu_score }}</span>
-       • <strong>Most-Likely {{ horizon }}-Year Price:</strong>
-       <span class="mono">{{ duu_price }}</span>
-       • <strong>Probability:</strong>
-       <span class="mono">{{ duu_probability }}</span>
-       • <span class="pill">{{ ddi_label }}</span>
-    </p>
-  </div>
-
-  <!-- Paradigm shift -->
-  <div class="section">
-    <h2>Paradigm Shift — Plain English</h2>
-    {{ paradigm | safe }}
-  </div>
-
-  <!-- DDI details -->
-  <div class="section">
-    <h2>DDI Details</h2>
-    {{ ddi_details | safe }}
-  </div>
-
-  <!-- Pillars -->
-  <div class="section">
-    <h2>Appendix — A–H Pillars</h2>
-    {{ pillars | safe }}
-  </div>
-
-  <!-- Checklist -->
-  <div class="section">
-    <h2>Compliance Checklist (v12)</h2>
-    <ul class="small">
-      {% for item in checklist %}
-      <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <div class="foot">CSP must be double-checked before publish. v12 preserves Gold layout and adds DDI system.</div>
-
-</div>
 </body>
 </html>
