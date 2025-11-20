@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DLENS Spotlight — {{TICKER}} — v12 Gold</title>
+
+<style>
+:root{--fg:#0f172a;--muted:#334155;--accent:#0ea5e9;--bg:#ffffff;--light:#f8fafc;--border:#e2e8f0}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:16px/1.58 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+.wrap{max-width:1024px;margin:36px auto;padding:22px}
+h1{font-size:28px;margin:0 0 8px}
+.section{margin:26px 0}
+.section h2{color:#0b5cab;font-size:20px;margin:0 0 8px}
+.summary{background:#f8fafc;padding:12px 14px;border-radius:12px;margin:8px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0}
+th,td{border:1px solid var(--border);padding:10px;vertical-align:top}
+th{background:#f1f5f9;text-align:left}
+.meta p{margin:4px 0;color:#334155}
+.id{font-weight:600;color:#475569}
+.badge{display:inline-block;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;padding:2px 8px;border-radius:999px;font-size:12px;margin-left:6px}
+.chart-block{margin:12px 0 6px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.tvwrap{height:420px}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <h1>DLENS Disruptor Spotlight – <strong>v12 Gold</strong> <span class="badge">HTML</span></h1>
+
+  <div class="meta">
+    <p><strong>Company:</strong> {{TICKER}}</p>
+    <p><strong>Ticker:</strong> {{TICKER}}</p>
+    <p><strong>Horizon:</strong> {{HORIZON}} Years</p>
+    <p><strong>Date:</strong> {{DATE}}</p>
+    <p class="id"><strong>Report ID:</strong> {{REPORT_ID}}</p>
+  </div>
+
+  <div class="chart-block">
+    <div class="tvwrap">
+      <div class="tradingview-widget-container">
+        <div id="tv_chart"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        <script type="text/javascript">
+          new TradingView.widget({
+            "width": "100%",
+            "height": 420,
+            "symbol": "{{SYMBOL_FULL}}",
+            "interval": "D",
+            "range": "12M",
+            "style": "3",
+            "theme": "light",
+            "locale": "en",
+            "hide_top_toolbar": false,
+            "hide_legend": false,
+            "save_image": false,
+            "withdateranges": true,
+            "allow_symbol_change": false,
+            "container_id": "tv_chart"
+          });
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <strong>Live Price:</strong> {{PRICE_BLOCK}}
+  </div>
+
+  {{CONTENT}}
+
+</div>
+</body>
+</html>
