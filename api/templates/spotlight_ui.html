@@ -58,27 +58,45 @@
 
 
 <script>
-function generate() {
+document.getElementById("spotlightForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
     const ticker = document.getElementById("ticker").value;
     const horizon = document.getElementById("horizon").value;
 
-    document.getElementById("status").innerHTML = "Generating report…";
+    document.getElementById("status").innerText = "Generating report...";
 
-    fetch("/api/spotlight", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ ticker, horizon })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.status === "success") {
-            window.location.href = data.report_url;
-        } else {
-            document.getElementById("status").innerHTML = data.error;
+    try {
+        const response = await fetch("/api/spotlight", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"   // ← FIXED
+            },
+            body: JSON.stringify({
+                ticker: ticker,
+                horizon: horizon
+            })
+        });
+
+        if (!response.ok) {
+            document.getElementById("status").innerText = "Error generating report.";
+            return;
         }
-    });
-}
+
+        const data = await response.json();
+
+        if (data.url) {
+            window.location.href = data.url;  // auto-open report
+        } else {
+            document.getElementById("status").innerText = "Report generated, but no URL returned.";
+        }
+
+    } catch (err) {
+        document.getElementById("status").innerText = "Request failed.";
+    }
+});
 </script>
+
 
 </body>
 </html>
