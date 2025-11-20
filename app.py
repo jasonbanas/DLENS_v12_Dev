@@ -1,44 +1,24 @@
 from flask import Flask, render_template, request, jsonify
-from api.spotlight import generate_spotlight_report
+from api.spotlight import generate_spotlight
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="api/templates")
 
-
-# ----------------------------------------
-# HOME PAGE (UI)
-# ----------------------------------------
-# When user visits "/", show the Spotlight Generator UI
 @app.route("/")
 def home():
     return render_template("spotlight_ui.html")
 
-
-# Optional path /spotlight to also open the UI
-@app.route("/spotlight")
-def spotlight_page():
-    return render_template("spotlight_ui.html")
-
-
-# ----------------------------------------
-# API: Generate Spotlight
-# ----------------------------------------
 @app.route("/api/spotlight", methods=["POST"])
-def spotlight_api():
+def api_spotlight():
     data = request.json
     ticker = data.get("ticker")
     horizon = data.get("horizon")
 
     if not ticker:
-        return jsonify({"error": "Missing ticker"}), 400
+        return jsonify({"error": "missing ticker"}), 400
 
-    # Generate the DLENS v12 Gold HTML
-    html_report = generate_spotlight_report(ticker, horizon)
+    url = generate_spotlight(ticker, horizon, user_id=None, email_opt_in=False)
+    return jsonify({"url": url})
 
-    return jsonify({"html": html_report})
-
-
-# ----------------------------------------
-# Required for local debugging (Gunicorn is used in Render)
-# ----------------------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+    
