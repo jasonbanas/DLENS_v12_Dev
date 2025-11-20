@@ -1,66 +1,49 @@
-import os
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from spotlight import generate_spotlight
+import os
 
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder="templates", static_folder="static_reports")
 
+# ------------------------
+# FRONT-END PAGES
+# ------------------------
 
-# ============================
-# HOME PAGE (API STATUS)
-# ============================
 @app.route("/")
 def home():
-    return "DLENS v12 Spotlight API Running"
+    return render_template("spotlight_ui.html")
 
-
-# ============================
-# SPOTLIGHT UI PAGE
-# ============================
 @app.route("/spotlight")
-def ui():
+def spotlight_page():
     return render_template("spotlight_ui.html")
 
 
-# ============================
-# API: GENERATE SPOTLIGHT
-# ============================
+# ------------------------
+# API FOR SPOTLIGHT GENERATION
+# ------------------------
 @app.route("/api/spotlight", methods=["POST"])
 def api_spotlight():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON received"}), 400
+    data = request.get_json()
 
-        ticker = data.get("ticker", "").upper().strip()
-        horizon = int(data.get("horizon", 1))
+    ticker = data.get("ticker")
+    horizon = data.get("projection_years")
+    user_id = data.get("user_id", "guest")
+    email_opt_in = data.get("email_opt_in", False)
 
-        if ticker == "":
-            return jsonify({"error": "Ticker is required"}), 400
+    url = generate_spotlight(ticker, horizon, user_id, email_opt_in)
 
-        # Call generator
-        url = generate_spotlight(
-            ticker=ticker,
-            projection_years=horizon,
-            user_id="guest",
-            email_opt_in=False
-        )
-
-        return jsonify({"url": url}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    return jsonify({"url": url})
 
 
-# ============================
-# SERVE GENERATED HTML REPORTS
-# ============================
+# ------------------------
+# SERVE STATIC REPORT FILES
+# ------------------------
 @app.route("/api/reports/<path:filename>")
-def serve_report(filename):
+def reports(filename):
     return send_from_directory("static_reports", filename)
 
 
-# ============================
-# RENDER ENTRY POINT
-# ============================
+# ------------------------
+# PORT BIND FOR RENDER
+# ------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

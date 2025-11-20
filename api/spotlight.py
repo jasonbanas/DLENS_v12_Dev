@@ -8,15 +8,13 @@ BASE_DIR = Path(__file__).resolve().parent
 REPORT_DIR = BASE_DIR / "static_reports"
 REPORT_DIR.mkdir(exist_ok=True)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
+client = OpenAI()
 
 def clean_gpt_html(text):
     if not text:
         return ""
     text = text.replace("```html", "").replace("```", "")
     return text.strip()
-
 
 def get_live_price(ticker):
     try:
@@ -33,40 +31,46 @@ def get_live_price(ticker):
         percent = round((change / prev_close) * 100, 2)
 
         timestamp = datetime.now().strftime("%Y-%m-%d %I:%M %p")
-
         return last_price, change, percent, timestamp
+
     except:
         return None, None, None, None
 
 
 def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
+
+    # LIVE PRICE
     price, change, percent, timestamp = get_live_price(ticker)
 
+    trend_color = "#22c55e" if (change or 0) >= 0 else "#ef4444"
+    sign = "+" if (change or 0) >= 0 else "-"
+
     if price:
-        trend_color = "#1a7f37" if change >= 0 else "#d32f2f"
-        sign = "+" if change >= 0 else "-"
         price_block = f"""
-        <div style="background:#f4f4f4;padding:15px;border-radius:10px;text-align:center;margin-bottom:20px">
-            <h2>{ticker} — ${price}</h2>
-            <p style="color:{trend_color};font-size:18px;">
-                {sign}{abs(change)} ({sign}{abs(percent)}%)
-            </p>
-            <p>Updated: {timestamp}</p>
-        </div>
+        <h2>{ticker.upper()} — ${price}</h2>
+        <p style="color:{trend_color}; font-size:18px;">
+            {sign}{abs(change)} ({sign}{abs(percent)}%)
+        </p>
+        <p>Updated: {timestamp}</p>
         """
     else:
-        price_block = f"<h3>{ticker}</h3><p>Live price unavailable</p>"
+        price_block = f"<h2>{ticker.upper()}</h2><p>Live price unavailable</p>"
 
-    # GPT content
+    # LLM PROMPT
     prompt = f"""
-    Generate a clean HTML DLENS Spotlight report for stock {ticker}.
+    Create a DLENS Spotlight report for ticker: {ticker}.
+    Output PURE HTML ONLY — NO MARKDOWN.
+    Do NOT wrap in ```html.
+
     Include:
-    - Summary
+    - Company Summary
+    - Financial Snapshot (table)
     - DUU Score
+    - CSP Anchors
+    - {projection_years}-Year Projection Table
+    - Highlights
     - Risks
-    -  {projection_years}-year projection
-    Output MUST be PURE HTML ONLY.
-    No markdown.
+    - Investment Verdict
     """
 
     response = client.chat.completions.create(
@@ -74,21 +78,28 @@ def generate_spotlight(ticker, projection_years, user_id, email_opt_in):
         messages=[{"role": "user", "content": prompt}]
     )
 
-    content_html = clean_gpt_html(response.choices[0].message.content)
+    gpt_html = clean_gpt_html(response.choices[0].message.content)
 
     final_html = f"""
     <html>
     <head>
-        <title>DLENS Spotlight {ticker}</title>
+        <title>DLENS Spotlight – {ticker}</title>
     </head>
-    <body style="font-family:Arial;padding:20px;">
+    <body>
+        <h1>DLENS Spotlight Report — {ticker.upper()}</h1>
         {price_block}
-        {content_html}
+
+        <iframe 
+            src="https://s.tradingview.com/widgetembed/?symbol={ticker.upper()}&interval=60&theme=light"
+            width="100%" height="420">
+        </iframe>
+
+        {gpt_html}
     </body>
     </html>
     """
 
-    filename = f"DLENS_Spotlight_{ticker}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+    filename = f"DLENS_Spotlight_{ticker.upper()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
     filepath = REPORT_DIR / filename
 
     with open(filepath, "w", encoding="utf-8") as f:
