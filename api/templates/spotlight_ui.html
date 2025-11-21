@@ -1,73 +1,89 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DLENS Spotlight v12</title>
-    <style>
-        body { background: #f7f7f7; font-family: Arial; }
-        .box {
-            background:white; width:480px; margin:60px auto;
-            padding:30px; border-radius:16px;
-            box-shadow:0 4px 12px rgba(0,0,0,0.1);
-            text-align:center;
-        }
-        input, select {
-            width:100%; padding:12px; margin-top:12px;
-            border-radius:8px; border:1px solid #ccc;
-        }
-        button {
-            width:100%; padding:14px; margin-top:20px;
-            background:#0094ff; color:white; border:none;
-            border-radius:8px; cursor:pointer; font-size:16px;
-        }
-    </style>
+<title>DLENS Spotlight v12</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f6f6f6;
+    padding: 40px;
+    text-align: center;
+}
+.container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    max-width: 420px;
+    margin: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+}
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+button:hover {
+    background: #0056c7;
+}
+#status {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #444;
+}
+</style>
 </head>
-
 <body>
-    <div class="box">
-        <h2>DLENS Spotlight v12</h2>
 
-        <input id="ticker" placeholder="Ticker (e.g. AAPL)" />
+<div class="container">
+    <h2>DLENS Spotlight v12</h2>
 
-        <select id="horizon">
-            <option value="1">1-Year Horizon</option>
-            <option value="5">5-Year Horizon</option>
-            <option value="10">10-Year Horizon</option>
-        </select>
+    <input id="ticker" placeholder="AAPL" />
 
-        <button id="generateButton">Generate Spotlight</button>
+    <select id="horizon">
+        <option value="1">1-Year Horizon</option>
+        <option value="3">3-Year Horizon</option>
+        <option value="5">5-Year Horizon</option>
+    </select>
 
-        <p id="status" style="margin-top:20px;color:#555;"></p>
-    </div>
+    <button id="btn">Generate Spotlight</button>
+
+    <div id="status"></div>
+</div>
 
 <script>
-document.getElementById("generateButton").onclick = async () => {
-    const ticker = document.getElementById("ticker").value.trim();
+document.getElementById("btn").onclick = async function () {
+    const ticker = document.getElementById("ticker").value;
     const horizon = document.getElementById("horizon").value;
 
     if (!ticker) {
-        alert("Enter a ticker symbol");
+        alert("Enter ticker");
         return;
     }
 
-    document.getElementById("status").innerText = "Generating report...";
+    document.getElementById("status").innerText = "Generating...";
 
-    const response = await fetch("/api/spotlight", {
+    const res = await fetch("/api/spotlight", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            ticker: ticker,
-            horizon: horizon
-        })
+        body: JSON.stringify({ ticker, horizon })
     });
 
-    const result = await response.json();
+    const data = await res.json();
 
-    if (result.url) {
-        window.location.href = result.url;
+    if (data.html) {
+        window.location.href = data.html;
     } else {
-        document.getElementById("status").innerText = "Error: " + result.error;
+        document.getElementById("status").innerText = "Error: " + data.error;
     }
 };
 </script>
+
 </body>
 </html>
