@@ -84,7 +84,10 @@ def generate_spotlight(ticker, horizon, user_id, email_opt_in):
         price_text = "Live price unavailable"
     else:
         sign = "+" if change >= 0 else "-"
-        price_text = f"${price}  (<span style='color:{'#22c55e' if change>=0 else '#ef4444'}'>{sign}{abs(change)} ({sign}{abs(percent)}%)</span>)"
+        price_text = (
+            f"${price}  (<span style='color:{'#22c55e' if change>=0 else '#ef4444'}'>"
+            f"{sign}{abs(change)} ({sign}{abs(percent)}%)</span>)"
+        )
 
     # Date (v12 style)
     date_str = datetime.now().strftime("%b %d, %Y %I:%M %p")
@@ -92,7 +95,7 @@ def generate_spotlight(ticker, horizon, user_id, email_opt_in):
     # ID: YYMMDD format
     id_short = datetime.now().strftime("%y%m%d")
 
-    # GPT PROMPT (v12 Gold full)
+    # GPT Prompt
     prompt = f"""
 Generate a **DLENS Disruptor Spotlight – v12 Gold** report for ticker **{ticker}**.
 
@@ -140,29 +143,36 @@ Return ONLY clean HTML.
 
     gpt_html = clean_gpt_html(response.choices[0].message.content)
 
-    # ----------------------------
     # Load template
-    # ----------------------------
     template_path = BASE_DIR / "spotlight_template.html"
     template = template_path.read_text(encoding="utf-8")
 
-    final_html = template \
-        .replace("{{TICKER}}", ticker) \
-        .replace("{{SYMBOL_FULL}}", symbol_full) \
-        .replace("{{DATE}}", date_str) \
-        .replace("{{HORIZON}}", str(horizon)) \
-        .replace("{{PRICE_BLOCK}}", price_text) \
-        .replace("{{REPORT_ID}}", f"DLENS_Spotlight_{ticker}_ID_{id_short}_v12_Gold.html") \
+    final_html = (
+        template
+        .replace("{{TICKER}}", ticker)
+        .replace("{{SYMBOL_FULL}}", symbol_full)
+        .replace("{{DATE}}", date_str)
+        .replace("{{HORIZON}}", str(horizon))
+        .replace("{{PRICE_BLOCK}}", price_text)
+        .replace("{{REPORT_ID}}", f"DLENS_Spotlight_{ticker}_ID_{id_short}_v12_Gold.html")
         .replace("{{CONTENT}}", gpt_html)
+    )
 
-    # ----------------------------
     # Save File
-    # ----------------------------
     filename = f"DLENS_Spotlight_{ticker}_ID_{id_short}_v12_Gold.html"
     filepath = REPORT_DIR / filename
 
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(final_html)
 
-    return f"/api/reports/{filename}"  
+    return f"/api/reports/{filename}"
 
+# ----------------------------
+# WRAPPER FOR API IMPORT
+# ----------------------------
+def generate_spotlight_report(ticker, horizon, user_id, email_opt_in):
+    """
+    Gunicorn / API expects this function.
+    This wrapper simply calls your real function.
+    """
+    return generate_spotlight(ticker, horizon, user_id, email_opt_in)
