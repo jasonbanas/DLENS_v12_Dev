@@ -120,7 +120,7 @@ Return ONLY clean HTML.
 
     # GPT call – lightweight model
     response = client.chat.completions.create(
-        model="gpt-4o-mini-translate",   # <<< LOW RAM MODEL
+        model="gpt-4o-mini",   # <<< LOW RAM MODEL
         messages=[{"role": "user", "content": prompt}]
     )
 
