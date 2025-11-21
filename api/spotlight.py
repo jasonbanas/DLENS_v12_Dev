@@ -72,7 +72,7 @@ def get_live_price(ticker):
 # ----------------------------
 # Generate full v12 Gold Spotlight
 # ----------------------------
-def generate_spotlight(ticker, horizon, user_id, email_opt_in):
+def generate_spotlight(ticker, horizon, user_id=None, email_opt_in=False):
 
     ticker = ticker.upper()
     exchange = detect_exchange(ticker)
@@ -92,7 +92,7 @@ def generate_spotlight(ticker, horizon, user_id, email_opt_in):
     # Date (v12 style)
     date_str = datetime.now().strftime("%b %d, %Y %I:%M %p")
 
-    # ID: YYMMDD format
+    # ID
     id_short = datetime.now().strftime("%y%m%d")
 
     # GPT Prompt
@@ -123,14 +123,14 @@ STRICT REQUIREMENTS:
   16) Appendix — A–H Pillars
   17) Compliance Checklist (v12)
 
-MUST include:
+Include:
 - DUU Score
 - Most-Likely Price ({horizon}y)
 - CSP (two-source)
 - Chips section
-- Pillars A–H with a full table
-- Peer comparison strict table (5 rows minimum)
-- TSLA/JOBY sample structure EXACTLY
+- Pillars A–H table
+- Peer comparison strict table (5 rows)
+- TSLA/JOBY structure
 
 Return ONLY clean HTML.
 """
@@ -158,7 +158,6 @@ Return ONLY clean HTML.
         .replace("{{CONTENT}}", gpt_html)
     )
 
-    # Save File
     filename = f"DLENS_Spotlight_{ticker}_ID_{id_short}_v12_Gold.html"
     filepath = REPORT_DIR / filename
 
@@ -168,11 +167,11 @@ Return ONLY clean HTML.
     return f"/api/reports/{filename}"
 
 # ----------------------------
-# WRAPPER FOR API IMPORT
+# WRAPPER FOR API IMPORT (OPTIONAL ARGS)
 # ----------------------------
-def generate_spotlight_report(ticker, horizon, user_id, email_opt_in):
+def generate_spotlight_report(ticker, horizon, user_id=None, email_opt_in=False):
     """
-    Gunicorn / API expects this function.
-    This wrapper simply calls your real function.
+    Wrapper used by /api/spotlight.
+    Makes user_id + email_opt_in optional so frontend calls work.
     """
     return generate_spotlight(ticker, horizon, user_id, email_opt_in)
