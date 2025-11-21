@@ -1,73 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>DLENS Spotlight v12</title>
-
-<style>
-body {
-    font-family: Arial;
-    background: #f6f6f6;
-    padding: 40px;
-    text-align: center;
-}
-.container {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    max-width: 420px;
-    margin: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-input, select, button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-}
-button {
-    background: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-button:hover {
-    background: #0056c7;
-}
-#status {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #444;
-}
-</style>
-</head>
-<body>
-
-<div class="container">
-    <h2>DLENS Spotlight v12</h2>
-
-    <input id="ticker" placeholder="AAPL" />
-
-    <select id="horizon">
-        <option value="1">1-Year Horizon</option>
-        <option value="3">3-Year Horizon</option>
-        <option value="5">5-Year Horizon</option>
-    </select>
-
-    <button id="btn">Generate Spotlight</button>
-
-    <div id="status"></div>
-</div>
-
 <script>
-document.getElementById("btn").onclick = async function () {
-    const ticker = document.getElementById("ticker").value;
-    const horizon = document.getElementById("horizon").value;
+document.getElementById("spotlightForm").onsubmit = async function(e) {
+    e.preventDefault();
 
-    if (!ticker) {
-        alert("Enter ticker");
-        return;
-    }
-
-    document.getElementById("status").innerText = "Generating...";
+    const ticker = e.target.ticker.value;
+    const horizon = e.target.horizon.value;
 
     const res = await fetch("/api/spotlight", {
         method: "POST",
@@ -75,15 +11,12 @@ document.getElementById("btn").onclick = async function () {
         body: JSON.stringify({ ticker, horizon })
     });
 
-    const data = await res.json();
+    const json = await res.json();
 
-    if (data.html) {
-        window.location.href = data.html;
+    if (json.html) {
+        window.location.href = json.html;
     } else {
-        document.getElementById("status").innerText = "Error: " + data.error;
+        alert("Error: " + json.error);
     }
 };
 </script>
-
-</body>
-</html>
