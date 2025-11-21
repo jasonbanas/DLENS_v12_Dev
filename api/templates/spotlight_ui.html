@@ -1,9 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DLENS v12 Spotlight Generator</title>
+<style>
+body { 
+    font-family: Arial; 
+    padding: 40px; 
+    background: #ffffff;
+    color: #0f172a;
+    max-width: 700px;
+    margin: auto;
+}
+input, select {
+    padding: 12px; 
+    font-size: 16px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+button {
+    padding: 14px 20px;
+    background: #0b5cab;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+button:hover {
+    background: #084b8a;
+}
+</style>
+</head>
+<body>
+
+<h1>📊 DLENS v12 Spotlight Generator</h1>
+
+<form id="spotlightForm">
+    <label><strong>Ticker Symbol</strong></label>
+    <input name="ticker" id="ticker" placeholder="AAPL" required>
+
+    <label><strong>Projection Years</strong></label>
+    <select name="horizon" id="horizon">
+        <option value="1">1 Year</option>
+        <option value="3">3 Years</option>
+        <option value="5">5 Years</option>
+    </select>
+
+    <button type="submit">Generate Spotlight Report</button>
+</form>
+
 <script>
 document.getElementById("spotlightForm").onsubmit = async function(e) {
     e.preventDefault();
 
-    const ticker = e.target.ticker.value;
-    const horizon = e.target.horizon.value;
+    const ticker = document.getElementById("ticker").value;
+    const horizon = document.getElementById("horizon").value;
 
     const res = await fetch("/api/spotlight", {
         method: "POST",
@@ -18,5 +68,8 @@ document.getElementById("spotlightForm").onsubmit = async function(e) {
     } else {
         alert("Error: " + json.error);
     }
-};
+}
 </script>
+
+</body>
+</html>
