@@ -1,56 +1,36 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
-from api.spotlight import generate_spotlight_report
-import os
+# api/app.py
 
-app = Flask(__name__, static_folder="static_reports", template_folder="templates")
+from flask import Flask, jsonify, request, render_template, send_from_directory
+from api.spotlight import save_spotlight_report
+
+app = Flask(__name__, static_folder="static_reports", template_folder="../templates")
 
 
-# ----------------------------------------
-# HOME PAGE (UI)
-# ----------------------------------------
 @app.route("/")
 def home():
     return render_template("spotlight_ui.html")
 
-@app.route("/spotlight")
-def spotlight_page():
-    return render_template("spotlight_ui.html")
 
-
-# ----------------------------------------
-# API: Generate Spotlight (JSON only)
-# ----------------------------------------
-@app.route("/api/spotlight", methods=["POST"])
-def spotlight_api():
-    data = request.get_json()
-
-    if not data:
-        return jsonify({"error": "JSON body required"}), 400
+# SAVE-ONLY ENDPOINT
+@app.route("/api/spotlight/save", methods=["POST"])
+def save_spotlight():
+    data = request.json
 
     ticker = data.get("ticker")
     horizon = data.get("horizon")
+    html_content = data.get("html")
 
-    if not ticker:
-        return jsonify({"error": "Missing ticker"}), 400
-    if not horizon:
-        return jsonify({"error": "Missing horizon"}), 400
+    if not ticker or not horizon or not html_content:
+        return jsonify({"error": "Missing fields"}), 400
 
-    # Generate HTML report
-    html_file = generate_spotlight_report(ticker, horizon)
-
-    return jsonify({"html": html_file})
+    url = save_spotlight_report(ticker, horizon, html_content)
+    return jsonify({"url": url})
 
 
-# ----------------------------------------
-# Serve Generated HTML Files
-# ----------------------------------------
 @app.route("/api/reports/<path:filename>")
 def serve_report(filename):
     return send_from_directory("static_reports", filename)
 
 
-# ----------------------------------------
-# Local Debug (Render uses Gunicorn)
-# ----------------------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

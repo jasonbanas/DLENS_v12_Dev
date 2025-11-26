@@ -1,75 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>DLENS v12 Spotlight Generator</title>
-<style>
-body { 
-    font-family: Arial; 
-    padding: 40px; 
-    background: #ffffff;
-    color: #0f172a;
-    max-width: 700px;
-    margin: auto;
-}
-input, select {
-    padding: 12px; 
-    font-size: 16px;
-    width: 100%;
-    margin-bottom: 15px;
-}
-button {
-    padding: 14px 20px;
-    background: #0b5cab;
-    color: white;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-}
-button:hover {
-    background: #084b8a;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLENS v12 Spotlight Generator</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", Arial, sans-serif;
+            background: linear-gradient(135deg, #002b3a, #001a23);
+            color: #e8faff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 60px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            width: 420px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #b4ff47;
+            font-weight: 700;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #d1f2ff;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #0d3f4a;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            margin-bottom: 18px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: #b4ff47;
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #0f5f6a;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #b4ff47;
+            border: 1px solid #b4ff47;
+            transition: 0.25s;
+        }
+
+        button:hover {
+            background: #0b4950;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #82c6d9;
+        }
+
+    </style>
 </head>
+
 <body>
 
-<h1>📊 DLENS v12 Spotlight Generator</h1>
+    <div class="container">
+        <h2>📊 DLENS v12 Spotlight Generator</h2>
 
-<form id="spotlightForm">
-    <label><strong>Ticker Symbol</strong></label>
-    <input name="ticker" id="ticker" placeholder="AAPL" required>
+        <form action="/api/spotlight" method="POST" target="_blank">
+            <label>Ticker Symbol</label>
+            <input type="text" name="ticker" placeholder="e.g., AAPL" required>
 
-    <label><strong>Projection Years</strong></label>
-    <select name="horizon" id="horizon">
-        <option value="1">1 Year</option>
-        <option value="3">3 Years</option>
-        <option value="5">5 Years</option>
-    </select>
+            <label>Projection Years</label>
+            <select name="horizon" required>
+                <option value="1">1 Year</option>
+                <option value="3">3 Years</option>
+                <option value="5">5 Years</option>
+                <option value="10">10 Years</option>
+            </select>
 
-    <button type="submit">Generate Spotlight Report</button>
-</form>
+            <button type="submit">Generate Spotlight Report</button>
+        </form>
 
-<script>
-document.getElementById("spotlightForm").onsubmit = async function(e) {
-    e.preventDefault();
-
-    const ticker = document.getElementById("ticker").value;
-    const horizon = document.getElementById("horizon").value;
-
-    const res = await fetch("/api/spotlight", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticker, horizon })
-    });
-
-    const json = await res.json();
-
-    if (json.html) {
-        window.location.href = json.html;
-    } else {
-        alert("Error: " + json.error);
-    }
-}
-</script>
+        <div class="footer">DLENS AI — v12 Gold Engine</div>
+    </div>
 
 </body>
 </html>
